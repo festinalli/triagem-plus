@@ -1,0 +1,20 @@
+Caio Exemplo Fictício
+Desenvolvedor Python
+
+Sobre
+Automatizo processos.
+
+Experiência
+Desenvolvedor Python
+Empresa Fictícia Teta · Tempo integral
+Recife, Pernambuco · Remota
+Automação de processos em Python.
+Competências: Python, Django
+
+Analista de Suporte
+Empresa Fictícia Iota · Meio período
+Atendimento e scripts em Bash.
+
+Competências
+Python
+Django

@@ -1,0 +1,41 @@
+{
+  "manifest_version": 3,
+  "name": "Triagem+",
+  "version": "0.1.0",
+  "description": "Triagem de candidatos de tecnologia direto no navegador, sem enviar dados para fora.",
+  "minimum_chrome_version": "120",
+  "icons": {
+    "16": "assets/icons/icon-16.png",
+    "32": "assets/icons/icon-32.png",
+    "48": "assets/icons/icon-48.png",
+    "128": "assets/icons/icon-128.png"
+  },
+  "action": {
+    "default_title": "Abrir a Triagem+",
+    "default_icon": {
+      "16": "assets/icons/icon-16.png",
+      "32": "assets/icons/icon-32.png",
+      "48": "assets/icons/icon-48.png",
+      "128": "assets/icons/icon-128.png"
+    }
+  },
+  "side_panel": {
+    "default_path": "panel/panel.html"
+  },
+  "background": {
+    "service_worker": "background/service-worker.js",
+    "type": "module"
+  },
+  "permissions": ["storage", "sidePanel", "activeTab", "scripting", "contextMenus"],
+  "commands": {
+    "analyze-profile": {
+      "suggested_key": {
+        "default": "Alt+Shift+T"
+      },
+      "description": "Analisar a página aberta com a Triagem+"
+    }
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'none'; base-uri 'none'"
+  }
+}

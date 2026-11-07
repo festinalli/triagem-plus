@@ -1,0 +1,62 @@
+Ivy Madeup Example (She/Her) · 3rd
+Senior Software Engineer at Fictional Corp
+Austin, Texas, United States · Contact info
+1,024 followers · 500+ connections
+Open to work
+
+About
+I build payment systems and like simple code.
+
+Experience
+Senior Software Engineer
+Fictional Corp · Full-time
+Jan 2020 - Present · 4 yrs 10 mos
+Austin, Texas, United States · Hybrid
+Built payment APIs in Go.
+Skills: Go, PostgreSQL
+Software Engineer
+Imaginary Labs · Contract
+Mar 2018 – Jun 2020 · 2 yrs 4 mos
+Remote
+Maintained Python services.
+Skills: Python
+Consultant
+Placeholder Inc · Self-employed
+2014 - 2017 · 3 yrs
+Austin, Texas
+Advised small teams on Ruby.
+
+Education
+Imaginary University
+BS, Computer Science
+2010 - 2014
+
+Licenses & certifications
+Invented Cloud Certification
+Fictional Institute
+Issued Jan 2022
+
+Projects
+Open Source Widget
+Jan 2021 - Mar 2021
+A small widget written in Rust.
+
+Skills
+Go
+PostgreSQL
+Python
+
+Recommendations
+Received
+Noah Placeholder
+Ivy is great to work with and knows Haskell very well.
+
+Languages
+English
+Native or bilingual proficiency
+Portuguese
+Professional working proficiency
+
+People also viewed
+Mia Placeholder
+Staff Engineer at Imaginary Labs

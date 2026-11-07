@@ -1,0 +1,547 @@
+/*
+ * Componentes do painel: classes `tr-<componente>` com elementos `__x` e variantes `--x`. Só usam tokens
+ * (var(--tr-...)). O painel tem de 320 a 500 px e nunca rola na horizontal: tudo quebra linha e encolhe (min-width: 0).
+ * Cada tela escreve o CSS dela só com estas classes e os tokens.
+ */
+
+/* ---------- Utilidades ---------- */
+.tr-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.tr-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tr-space-3);
+  min-width: 0;
+}
+
+.tr-stack--tight {
+  gap: var(--tr-space-1);
+}
+
+.tr-stack--loose {
+  gap: var(--tr-space-5);
+}
+
+.tr-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--tr-space-2);
+  min-width: 0;
+}
+
+.tr-rtr--end {
+  justify-content: flex-end;
+}
+
+.tr-rtr--between {
+  justify-content: space-between;
+}
+
+.tr-heading {
+  margin: 0;
+  font-size: var(--tr-font-size-large);
+  font-weight: var(--tr-font-weight-strong);
+  line-height: 1.3;
+}
+
+.tr-heading--title {
+  font-size: var(--tr-font-size-title);
+}
+
+.tr-heading--small {
+  font-size: var(--tr-font-size);
+}
+
+.tr-text {
+  margin: 0;
+}
+
+.tr-text--muted {
+  color: var(--tr-color-text-muted);
+}
+
+.tr-text--small {
+  font-size: var(--tr-font-size-small);
+}
+
+.tr-link {
+  color: var(--tr-color-link);
+  text-decoration: underline;
+}
+
+.tr-link:hover {
+  text-decoration-thickness: 2px;
+}
+
+/* ---------- Botão ---------- */
+.tr-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--tr-space-2);
+  min-height: var(--tr-touch-target);
+  max-width: 100%;
+  padding: var(--tr-space-2) var(--tr-space-4);
+  border: var(--tr-border-width) solid var(--tr-color-border);
+  border-radius: var(--tr-radius-md);
+  background-color: var(--tr-color-surface-raised);
+  color: var(--tr-color-text);
+  font: inherit;
+  font-weight: var(--tr-font-weight-strong);
+  line-height: 1.25;
+  text-align: center;
+  text-decoration: none;
+  white-space: normal;
+  cursor: pointer;
+  transition: background-color var(--tr-motion);
+}
+
+.tr-btn:hover {
+  background-color: var(--tr-color-surface-sunken);
+}
+
+.tr-btn--primary {
+  border-color: var(--tr-color-accent);
+  background-color: var(--tr-color-accent);
+  color: var(--tr-color-on-accent);
+}
+
+.tr-btn--primary:hover {
+  border-color: var(--tr-color-accent-hover);
+  background-color: var(--tr-color-accent-hover);
+}
+
+.tr-btn--secondary {
+  border-color: var(--tr-color-border);
+  background-color: var(--tr-color-surface-raised);
+  color: var(--tr-color-text);
+}
+
+.tr-btn--danger {
+  border-color: var(--tr-color-danger);
+  background-color: var(--tr-color-danger);
+  color: var(--tr-color-on-danger);
+}
+
+.tr-btn--danger:hover {
+  border-color: var(--tr-color-danger-hover);
+  background-color: var(--tr-color-danger-hover);
+}
+
+/* Botão discreto: para ações que se repetem em listas, como o detalhe de cada pessoa. */
+.tr-btn--quiet {
+  min-height: 2rem;
+  padding: var(--tr-space-1) var(--tr-space-2);
+  border-color: var(--tr-color-border-subtle);
+  background-color: transparent;
+  color: var(--tr-color-link);
+  font-size: var(--tr-font-size-small);
+}
+
+.tr-btn--quiet:hover {
+  background-color: var(--tr-color-accent-soft);
+}
+
+.tr-btn--block {
+  display: flex;
+  width: 100%;
+}
+
+.tr-btn--icon {
+  min-width: var(--tr-touch-target);
+  padding: var(--tr-space-2);
+}
+
+.tr-btn:disabled,
+.tr-btn[aria-disabled='true'] {
+  cursor: not-allowed;
+  border-color: var(--tr-color-border-subtle);
+  background-color: var(--tr-color-surface);
+  color: var(--tr-color-text-muted);
+}
+
+.tr-btn[aria-busy='true'] {
+  cursor: progress;
+}
+
+.tr-btn__icon {
+  flex: none;
+  line-height: 1;
+}
+
+.tr-btn__label {
+  min-width: 0;
+}
+
+/* ---------- Cartão ---------- */
+.tr-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tr-space-3);
+  min-width: 0;
+  padding: var(--tr-space-4);
+  border: var(--tr-border-width) solid var(--tr-color-border-subtle);
+  border-radius: var(--tr-radius-md);
+  background-color: var(--tr-color-surface);
+  color: var(--tr-color-text);
+  box-shadow: var(--tr-shadtr-raised);
+}
+
+.tr-card--attention {
+  border-color: var(--tr-color-attention-border);
+}
+
+.tr-card--error {
+  border-color: var(--tr-color-danger-border);
+}
+
+.tr-card__title {
+  margin: 0;
+  font-size: var(--tr-font-size-large);
+  font-weight: var(--tr-font-weight-strong);
+  line-height: 1.3;
+}
+
+.tr-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tr-space-2);
+  min-width: 0;
+}
+
+.tr-card__footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--tr-space-2);
+  padding-top: var(--tr-space-3);
+  border-top: var(--tr-border-width) solid var(--tr-color-border-subtle);
+}
+
+/* ---------- Lista ---------- */
+.tr-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: var(--tr-border-width) solid var(--tr-color-border-subtle);
+  border-radius: var(--tr-radius-md);
+  background-color: var(--tr-color-surface);
+}
+
+.tr-list--ordered {
+  padding-inline-start: var(--tr-space-5);
+  list-style: decimal;
+}
+
+.tr-list__item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--tr-space-2);
+  padding: var(--tr-space-3);
+  border-bottom: var(--tr-border-width) solid var(--tr-color-border-subtle);
+}
+
+.tr-list__item:last-child {
+  border-bottom: 0;
+}
+
+.tr-list__main {
+  flex: 1 1 10rem;
+  min-width: 0;
+}
+
+.tr-list__title {
+  margin: 0;
+  font-weight: var(--tr-font-weight-strong);
+}
+
+.tr-list__meta {
+  margin: 0;
+  color: var(--tr-color-text-muted);
+  font-size: var(--tr-font-size-small);
+}
+
+.tr-list__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--tr-space-2);
+}
+
+/* ---------- Formulário ---------- */
+.tr-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tr-space-4);
+  min-width: 0;
+}
+
+.tr-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tr-space-1);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.tr-field__label {
+  padding: 0;
+  font-weight: var(--tr-font-weight-strong);
+}
+
+.tr-field__required {
+  color: var(--tr-color-danger-text);
+}
+
+.tr-field__help {
+  margin: 0;
+  color: var(--tr-color-text-muted);
+  font-size: var(--tr-font-size-small);
+}
+
+.tr-field__error {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--tr-space-1);
+  margin: 0;
+  color: var(--tr-color-danger-text);
+  font-size: var(--tr-font-size-small);
+  font-weight: var(--tr-font-weight-strong);
+}
+
+.tr-field__error-icon {
+  flex: none;
+}
+
+.tr-field--invalid .tr-input,
+.tr-field--invalid .tr-textarea,
+.tr-field--invalid .tr-select {
+  border-color: var(--tr-color-danger-border);
+}
+
+.tr-input,
+.tr-textarea,
+.tr-select {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-height: var(--tr-touch-target);
+  padding: var(--tr-space-2) var(--tr-space-3);
+  border: var(--tr-border-width) solid var(--tr-color-border);
+  border-radius: var(--tr-radius-md);
+  background-color: var(--tr-color-surface-raised);
+  color: var(--tr-color-text);
+  font: inherit;
+}
+
+.tr-textarea {
+  resize: vertical;
+}
+
+/* O navegador pinta o placeholder com a cor dele (cinza fixo, que fica abaixo de 4,5:1 no tema escuro): o texto de
+   exemplo usa o token de texto de apoio, que cumpre AA sobre a superfície do campo nos dois temas. */
+.tr-input::placeholder,
+.tr-textarea::placeholder {
+  color: var(--tr-color-text-muted);
+  opacity: 1;
+}
+
+.tr-input:disabled,
+.tr-textarea:disabled,
+.tr-select:disabled {
+  border-color: var(--tr-color-border-subtle);
+  background-color: var(--tr-color-surface);
+  color: var(--tr-color-text-muted);
+  cursor: not-allowed;
+}
+
+.tr-check {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--tr-space-2);
+  min-height: var(--tr-touch-target);
+  padding-block: var(--tr-space-1);
+}
+
+.tr-check__input {
+  flex: none;
+  margin: 0.2rem 0 0;
+  accent-color: var(--tr-color-accent);
+}
+
+.tr-check__text {
+  min-width: 0;
+}
+
+/* ---------- Aviso e banner ---------- */
+.tr-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--tr-space-2);
+  min-width: 0;
+  padding: var(--tr-space-3);
+  border: var(--tr-border-width) solid var(--tr-color-info-border);
+  border-inline-start-width: 4px;
+  border-radius: var(--tr-radius-md);
+  background-color: var(--tr-color-info-soft);
+  color: var(--tr-color-text);
+}
+
+.tr-notice--attention {
+  border-color: var(--tr-color-attention-border);
+  background-color: var(--tr-color-attention-soft);
+}
+
+.tr-notice--error {
+  border-color: var(--tr-color-danger-border);
+  background-color: var(--tr-color-danger-soft);
+}
+
+.tr-notice--success {
+  border-color: var(--tr-color-success-border);
+  background-color: var(--tr-color-success-soft);
+}
+
+.tr-notice__icon {
+  flex: none;
+  font-weight: var(--tr-font-weight-strong);
+  line-height: 1.45;
+  color: var(--tr-color-info-text);
+}
+
+.tr-notice--attention .tr-notice__icon {
+  color: var(--tr-color-attention-text);
+}
+
+.tr-notice--error .tr-notice__icon {
+  color: var(--tr-color-danger-text);
+}
+
+.tr-notice--success .tr-notice__icon {
+  color: var(--tr-color-success-text);
+}
+
+.tr-notice__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tr-space-1);
+  min-width: 0;
+}
+
+.tr-notice__title {
+  margin: 0;
+  font-weight: var(--tr-font-weight-strong);
+}
+
+.tr-notice__text {
+  margin: 0;
+}
+
+.tr-notice__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--tr-space-2);
+  margin-top: var(--tr-space-1);
+}
+
+/* ---------- StatusPill: sempre ícone e texto (RF-028) ---------- */
+.tr-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--tr-space-1);
+  max-width: 100%;
+  padding: 0.125rem var(--tr-space-2);
+  border: var(--tr-border-width) solid var(--tr-color-border);
+  border-radius: var(--tr-radius-pill);
+  background-color: var(--tr-color-surface-raised);
+  color: var(--tr-color-text);
+  font-size: var(--tr-font-size-small);
+  font-weight: var(--tr-font-weight-strong);
+  line-height: 1.3;
+}
+
+.tr-pill__icon {
+  flex: none;
+  line-height: 1;
+}
+
+.tr-pill__text {
+  min-width: 0;
+}
+
+.tr-pill--success {
+  border-color: var(--tr-color-success-border);
+  background-color: var(--tr-color-success-soft);
+  color: var(--tr-color-success-text);
+}
+
+.tr-pill--attention {
+  border-color: var(--tr-color-attention-border);
+  background-color: var(--tr-color-attention-soft);
+  color: var(--tr-color-attention-text);
+}
+
+.tr-pill--error {
+  border-color: var(--tr-color-danger-border);
+  background-color: var(--tr-color-danger-soft);
+  color: var(--tr-color-danger-text);
+}
+
+.tr-pill--info,
+.tr-pill--running {
+  border-color: var(--tr-color-info-border);
+  background-color: var(--tr-color-info-soft);
+  color: var(--tr-color-info-text);
+}
+
+/* ---------- Divulgação recolhível ---------- */
+.tr-disclosure {
+  border: var(--tr-border-width) solid var(--tr-color-border-subtle);
+  border-radius: var(--tr-radius-md);
+  background-color: var(--tr-color-surface);
+}
+
+.tr-disclosure__summary {
+  min-height: var(--tr-touch-target);
+  padding: var(--tr-space-2) var(--tr-space-3);
+  font-weight: var(--tr-font-weight-strong);
+  cursor: pointer;
+}
+
+.tr-disclosure__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tr-space-2);
+  padding: var(--tr-space-1) var(--tr-space-3) var(--tr-space-3);
+}
+
+/* ---------- Contraste forçado (Windows): usa as cores do sistema ---------- */
+@media (forced-colors: active) {
+  .tr-btn,
+  .tr-input,
+  .tr-textarea,
+  .tr-select,
+  .tr-pill,
+  .tr-notice,
+  .tr-card {
+    border-color: CanvasText;
+  }
+
+  .tr-btn:disabled {
+    border-color: GrayText;
+    color: GrayText;
+  }
+}

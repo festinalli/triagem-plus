@@ -1,0 +1,30 @@
+{
+  "name": "triagem",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Extensão Chrome local para triagem de candidatos de tecnologia, sem rede e sem servidor.",
+  "type": "module",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.core.json",
+    "test": "node --test \"tests/**/*.test.ts\"",
+    "build": "node scripts/build.mjs",
+    "build:proof": "node scripts/build.mjs --proof",
+    "verify": "node scripts/verify-dist.mjs && node scripts/verify-dist.mjs --proof",
+    "check:secrets": "node scripts/check-secrets.mjs --no-dist",
+    "test:e2e": "npm run build && npm run build:proof && node --test --test-timeout=120000 --test-concurrency=1 \"tests/e2e/**/*.e2e.ts\"",
+    "check": "npm run typecheck && npm run check:secrets && npm test && npm run build && npm run build:proof && npm run verify"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.3.5",
+    "@types/jsdom": "^30.0.0",
+    "@types/node": "^26.6.5",
+    "esbuild": "^0.28.2",
+    "jsdom": "^30.1.3",
+    "pdfjs-dist": "6.4.299",
+    "playwright": "1.64.1",
+    "typescript": "^7.0.2"
+  }
+}

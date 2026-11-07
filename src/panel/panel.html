@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Triagem+</title>
+    <link rel="stylesheet" href="ui/tokens.css" />
+    <link rel="stylesheet" href="ui/components.css" />
+    <link rel="stylesheet" href="panel.css" />
+  </head>
+  <body>
+    <header class="tr-shell">
+      <div class="tr-shell__top">
+        <h1 class="tr-shell__name">Triagem+</h1>
+        <div id="shell-actions"></div>
+      </div>
+      <div id="shell-job"></div>
+    </header>
+    <main id="messages" class="tr-conversation" aria-label="Conversa">
+      <p class="tr-text tr-text--muted">Carregando…</p>
+    </main>
+    <section id="proof" class="tr-proof" hidden aria-live="polite">
+      <h2>Leitura da página</h2>
+      <p id="proof-status">Nenhuma leitura ainda.</p>
+      <dl id="proof-data" hidden>
+        <dt>Origem</dt>
+        <dd id="proof-origin"></dd>
+        <dt>Caracteres</dt>
+        <dd id="proof-count"></dd>
+        <dt>Início do texto</dt>
+        <dd><pre id="proof-preview"></pre></dd>
+      </dl>
+    </section>
+    <script type="module" src="panel.js"></script>
+  </body>
+</html>

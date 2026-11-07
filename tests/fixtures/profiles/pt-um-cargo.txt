@@ -1,0 +1,44 @@
+Clara Fictícia Exemplo
+Ela/Dela · 2º
+Desenvolvedora Backend na Empresa Fictícia Alfa
+São Paulo, São Paulo, Brasil · Informações de contato
+1.234 seguidores · 500+ conexões
+Mensagem
+
+Sobre
+Desenvolvo sistemas de pagamento e gosto de código simples.
+
+Experiência
+Desenvolvedora Sênior
+Empresa Fictícia Alfa · Tempo integral
+jan de 2020 - o momento · 4 anos 10 meses
+São Paulo, Brasil · Híbrida
+Desenvolvimento de APIs de pagamento.
+Competências: Java, Spring
+Desenvolvedora Plena
+Empresa Fictícia Beta · Tempo integral
+mar de 2017 - dez de 2019 · 2 anos 10 meses
+Curitiba, Paraná · Presencial
+Manutenção de sistemas legados em Java.
+Competências: Java, Oracle
+
+Licenças e certificados
+Certificação Inventada de Java
+Instituto Fictício
+Emitido em jan de 2022
+
+Competências
+Java
+Spring
+Oracle
+
+Idiomas
+Português
+Nativo ou bilíngue
+Inglês
+Avançado
+
+Projetos
+Biblioteca de Exemplo
+mar de 2021 - abr de 2021
+Biblioteca de código aberto em Kotlin.

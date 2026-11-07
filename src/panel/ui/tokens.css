@@ -1,0 +1,138 @@
+/*
+ * Tokens do painel da Triagem+. Único arquivo do painel com cor literal: o resto do CSS usa var(--tr-...).
+ * Identidade própria: verde-azulado #0F766E como cor de ação. Tema claro por padrão; o escuro vale quando o sistema pede
+ * (prefers-color-scheme). Cada par de texto tem pelo menos 4,5:1 e cada contorno de controle 3:1.
+ *
+ * Convenção: laranja (--tr-color-attention-*) = olhe antes de seguir; vermelho (--tr-color-danger-*) = recusado ou vai apagar.
+ * O significado nunca fica só na cor: ícone e texto acompanham.
+ */
+:root {
+  color-scheme: light dark;
+
+  /* Superfícies */
+  --tr-color-bg: #ffffff;
+  --tr-color-surface: #f2f5f5;
+  --tr-color-surface-raised: #ffffff;
+  --tr-color-surface-sunken: #e1e8e8;
+  --tr-color-shadow: rgba(10, 20, 20, 0.18);
+
+  /* Texto e linhas */
+  --tr-color-text: #172121;
+  --tr-color-text-muted: #455353;
+  --tr-color-border: #5f7070;
+  --tr-color-border-subtle: #d0dada;
+  --tr-color-focus: #b45309;
+
+  /* Ação principal e links */
+  --tr-color-accent: #0f766e;
+  --tr-color-accent-hover: #0b5c56;
+  --tr-color-on-accent: #ffffff;
+  --tr-color-accent-soft: #dcf1ee;
+  --tr-color-link: #0b6159;
+
+  /* Perigo: recusado, ou vai apagar */
+  --tr-color-danger: #b3261e;
+  --tr-color-danger-hover: #8f1d17;
+  --tr-color-on-danger: #ffffff;
+  --tr-color-danger-soft: #fdeceb;
+  --tr-color-danger-text: #8c1d18;
+  --tr-color-danger-border: #b3261e;
+
+  /* Atenção: olhe antes de seguir */
+  --tr-color-attention-soft: #fff1df;
+  --tr-color-attention-text: #7a3b00;
+  --tr-color-attention-border: #b45309;
+
+  /* Sucesso e informação */
+  --tr-color-success-soft: #e4f4e8;
+  --tr-color-success-text: #1b5e31;
+  --tr-color-success-border: #2e7d46;
+  --tr-color-info-soft: #eceff1;
+  --tr-color-info-text: #34444a;
+  --tr-color-info-border: #607780;
+
+  /* Espaço, forma e tipografia (rem: acompanham o zoom do navegador) */
+  --tr-space-1: 0.25rem;
+  --tr-space-2: 0.5rem;
+  --tr-space-3: 0.75rem;
+  --tr-space-4: 1rem;
+  --tr-space-5: 1.5rem;
+  --tr-space-6: 2rem;
+  --tr-radius-sm: 0.25rem;
+  --tr-radius-md: 0.5rem;
+  --tr-radius-pill: 62.5rem;
+  --tr-border-width: 1px;
+  --tr-touch-target: 2.25rem;
+  --tr-font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --tr-font-size: 0.875rem;
+  --tr-font-size-small: 0.8125rem;
+  --tr-font-size-large: 1rem;
+  --tr-font-size-title: 1.125rem;
+  --tr-line-height: 1.45;
+  --tr-font-weight-strong: 600;
+  --tr-shadow-raised: 0 1px 3px var(--tr-color-shadow);
+  --tr-motion: 120ms;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --tr-color-bg: #0f1717;
+    --tr-color-surface: #172121;
+    --tr-color-surface-raised: #1e2a2a;
+    --tr-color-surface-sunken: #263434;
+    --tr-color-shadow: rgba(0, 0, 0, 0.5);
+    --tr-color-text: #e6eded;
+    --tr-color-text-muted: #b2c0c0;
+    --tr-color-border: #86989a;
+    --tr-color-border-subtle: #2c3b3b;
+    --tr-color-focus: #fbbf24;
+    --tr-color-accent: #2dd4bf;
+    --tr-color-accent-hover: #5eead4;
+    --tr-color-on-accent: #04302c;
+    --tr-color-accent-soft: #123a37;
+    --tr-color-link: #5eead4;
+    --tr-color-danger: #f28b82;
+    --tr-color-danger-hover: #f5a5a0;
+    --tr-color-on-danger: #2a0a08;
+    --tr-color-danger-soft: #3b1c1a;
+    --tr-color-danger-text: #ffb4ad;
+    --tr-color-danger-border: #f28b82;
+    --tr-color-attention-soft: #3a2812;
+    --tr-color-attention-text: #ffc680;
+    --tr-color-attention-border: #e0903a;
+    --tr-color-success-soft: #16301f;
+    --tr-color-success-text: #8fd9a3;
+    --tr-color-success-border: #4fae6a;
+    --tr-color-info-soft: #1f2b2d;
+    --tr-color-info-text: #c3d1d4;
+    --tr-color-info-border: #7f979c;
+  }
+}
+
+/* Base da página: caixa, tipografia, foco visível em tudo que recebe foco e movimento reduzido. */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background-color: var(--tr-color-bg);
+  color: var(--tr-color-text);
+  font-family: var(--tr-font-family);
+  font-size: var(--tr-font-size);
+  line-height: var(--tr-line-height);
+  overflow-wrap: anywhere;
+}
+
+:where(a[href], button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 3px solid var(--tr-color-focus);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --tr-motion: 0s;
+  }
+}

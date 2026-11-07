@@ -1,0 +1,15 @@
+Voltar para o perfil
+Olívia Fictícia Ramos
+Experiência
+Desenvolvedora Front-end
+Empresa Fictícia Zeta · Tempo integral
+mai de 2021 - o momento · 3 anos 6 meses
+Recife, Pernambuco, Brasil · Remota
+Interfaces em React.
+Descrição completa, com testes em Jest e Cypress.
+Competências: React, TypeScript
+Desenvolvedora Júnior
+Empresa Fictícia Eta · Estágio
+jan de 2019 - abr de 2021 · 2 anos 4 meses
+Olinda, Pernambuco · Presencial
+Páginas em Vue.

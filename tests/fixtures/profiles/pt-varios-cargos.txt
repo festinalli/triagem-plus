@@ -1,0 +1,32 @@
+Bento Imaginário Silva
+Ele/Dele
+Engenheiro de Software Líder
+Campinas, São Paulo, Brasil
+
+Sobre
+Trabalho com plataformas e microsserviços.
+
+Experiência
+Empresa Fictícia Delta
+Tempo integral · 5 anos 8 meses
+Engenheiro de Software Líder
+jan de 2021 - o momento · 3 anos 10 meses
+São Paulo, Brasil · Remota
+Liderança do time de plataforma.
+Competências: Kotlin, Kubernetes
+Engenheiro de Software
+mar de 2019 - dez de 2020 · 1 ano 10 meses
+São Paulo, Brasil
+Microsserviços em Kotlin.
+Competências: Kotlin, Kafka
+Analista de Sistemas
+Empresa Fictícia Épsilon · Meio período
+jun de 2016 - fev de 2019 · 2 anos 9 meses
+Campinas, São Paulo · Presencial
+Manutenção de sistemas em PHP.
+
+Competências
+Kotlin
+Kubernetes
+Kafka
+PHP
