@@ -115,7 +115,7 @@ describe('F09: ligar e desligar a leitura por clique', { timeout: 120_000 }, () 
     await page.getByRole('button', { name: 'Desligar a leitura por clique' }).waitFor();
     const on = await settingsOf();
     assert.equal(on.clickReadEnabled, true);
-    assert.equal(on.acceptances.clickRead?.version, 1);
+    assert.equal(on.acceptances.clickRead?.version, 2);
     assert.ok((on.acceptances.clickRead?.at ?? 0) >= before && (on.acceptances.clickRead?.at ?? 0) <= Date.now(), 'a data do aceite foi gravada');
     assert.match((await page.getByTestId('click-read-status').textContent()) ?? '', /^Ligada\. Aviso aceito em \d{2}\/\d{2}\/\d{4}\.$/u);
     await waitMenu(true);
@@ -217,7 +217,7 @@ describe('F09: o painel consome a leitura deixada pelo gesto', { timeout: 180_00
 
   test('sem vaga ativa nada é guardado e a conversa orienta; erro de leitura vira mensagem simples', async () => {
     // Leitura por clique ligada, mas sem o aceite dos avisos: a conversa orienta.
-    await h.worker.evaluate(() => chrome.storage.local.set({ settings: { responsibleName: '', responsibleContact: '', retentionDays: 180, clickReadEnabled: true, activeJobId: null, messageTemplates: [], acceptances: { clickRead: { version: 1, at: Date.now() } } } }));
+    await h.worker.evaluate(() => chrome.storage.local.set({ settings: { responsibleName: '', responsibleContact: '', retentionDays: 180, clickReadEnabled: true, activeJobId: null, messageTemplates: [], acceptances: { clickRead: { version: 2, at: Date.now() } } } }));
     const { page } = await openPanel(h);
     await page.getByRole('button', { name: /Li os avisos e aceito/ }).waitFor();
     await setPending({ ok: true, at: 7, read: { text: profile('Fábio Inventado', ['Java']), url: profileUrl('fabio'), title: 'x' } });

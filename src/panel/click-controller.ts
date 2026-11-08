@@ -1,11 +1,9 @@
 // Liga e desliga a leitura por clique em Ajustes (RF-32, DP-20). Ligar mostra o aviso próprio e só grava depois do aceite,
 // com a data. Desligar é um clique. O service worker percebe a mudança em settings e cria ou tira o item do menu.
+import { CLICK_READ_VERSION } from '../background/gesture.ts';
 import type { Store } from '../core/store/store.ts';
 import type { UiState } from './app.ts';
 import { CLICK_READ } from './click-strings.ts';
-
-/** Versão do texto do aviso (RF-32). Se subir, o aceite é pedido de novo. */
-export const CLICK_READ_VERSION = 1;
 
 export interface ClickReadControl {
   /** O aviso está na tela, esperando o aceite. */

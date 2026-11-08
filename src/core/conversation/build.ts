@@ -341,7 +341,8 @@ const searchRule: ConversationRule = ({ activeJob }, step) => {
       title: activeJob.title,
       searchableCount,
       built,
-      actions: [act('open_requirements', { primary: built.full.text === '' }), act('go_home')],
+      // Depois de buscar, o próximo passo é analisar quem apareceu.
+      actions: [...(built.full.text === '' ? [] : [act('open_paste')]), act('open_requirements', { primary: built.full.text === '' }), act('go_home')],
     },
   ];
 };

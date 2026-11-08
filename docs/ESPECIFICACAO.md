@@ -1,6 +1,6 @@
 # Especificação da Triagem+
 
-Versão 0.3, de 2026-11-06. Diz o que a Triagem+ faz, o que não faz e como conferir que faz certo. A versão 0.2 traz a decisão D-08: lista automática depois de analisar, PDF e painel em forma de conversa. As decisões e os motivos estão em [DECISOES.md](DECISOES.md), e a ordem de construção em [PLANO.md](PLANO.md).
+Versão 0.6, de 2026-11-07, com o botão Próximo perfil (D-11). A versão 0.5 trouxe o botão Ler esta página no painel (D-10), e a 0.4 trouxe a leitura da página de resultados (D-09). Diz o que a Triagem+ faz, o que não faz e como conferir que faz certo. A versão 0.2 traz a decisão D-08: lista automática depois de analisar, PDF e painel em forma de conversa. As decisões e os motivos estão em [DECISOES.md](DECISOES.md), e a ordem de construção em [PLANO.md](PLANO.md).
 
 Este documento não é parecer jurídico.
 
@@ -12,7 +12,7 @@ A Triagem+ é uma extensão do Google Chrome para quem recruta pessoas desenvolv
 
 1. Cadastra a vaga e diz o que é obrigatório e o que é desejável: stack, anos de experiência, idioma, certificado.
 2. Recebe um texto de busca com E, OU e NÃO, para usar no próprio LinkedIn.
-3. Abre um perfil que achou interessante e clica para analisar, ou cola o texto do perfil no painel.
+3. Na página de resultados, usa o gesto e a extensão lê as pessoas daquela página, com pré-nota. Para a nota completa, abre o perfil e usa o gesto, ou cola o texto no painel.
 4. Vê na conversa a nota de match e a explicação: o que bateu, o que faltou e o que não foi encontrado.
 5. A lista se monta sozinha: quem foi analisado entra, a ordem se ajusta e a conversa mostra os **10 com maior match** da vaga. Quem não interessar sai com um clique.
 6. Filtra por stack e experiência, anota, muda a etapa e, com um clique, gera um **PDF com a classificação e o link de cada dev**.
@@ -22,7 +22,7 @@ A Triagem+ é uma extensão do Google Chrome para quem recruta pessoas desenvolv
 
 **Para quem é:** recrutador de tecnologia autônomo ou consultoria pequena. Quem usa responde pelos dados que guarda.
 
-**Onde roda nesta primeira versão:** só no Chrome do dono do projeto, instalada a partir da pasta. Sem GitHub e sem loja.
+**Onde roda nesta primeira versão:** no Chrome do computador, instalada a partir da pasta, em modo do desenvolvedor. O código é aberto no GitHub, e cada versão sai como um .zip (D-12). Sem loja.
 
 ## 2. Convenções
 
@@ -34,7 +34,7 @@ A Triagem+ é uma extensão do Google Chrome para quem recruta pessoas desenvolv
 ## 3. Princípios
 
 - **P-1. Tudo no navegador.** Nenhum dado de candidato sai da máquina, a não ser por um arquivo que a pessoa escolha baixar.
-- **P-2. Um perfil por gesto.** Cada leitura nasce de um gesto da pessoa e lê uma única página, uma única vez.
+- **P-2. Uma página por gesto.** Cada leitura nasce de um gesto da pessoa e lê uma única página, uma única vez. Pode ser um perfil ou a página de resultados de pessoas (D-09).
 - **P-3. A pessoa decide.** A nota é apoio. Nada reprova, descarta ou esconde alguém sem a pessoa pedir, e o que foi filtrado continua contado na tela.
 - **P-4. Explicável.** Toda nota mostra de onde veio. Não há conta que a pessoa não consiga conferir.
 - **P-5. Só conta o que é da vaga.** Somente os requisitos da vaga mudam a nota. Texto fora deles não tem como influenciar.
@@ -116,24 +116,28 @@ Consequências no produto: nada é inserido na página do LinkedIn (RNF-03), a l
 
 | Id | Requisito |
 |---|---|
-| RF-20 | **DEVE** montar o texto de busca a partir dos requisitos: obrigatórios ligados por `AND`, sinônimos por `OR`, termos excluídos por `NOT`, operadores em maiúsculas, expressões entre aspas. |
-| RF-21 | **DEVE** oferecer versão completa e versão curta (até 3 obrigatórios), mostrando quantos operadores cada uma usa e o limite conhecido por plano. Quando o LinkedIn não publica o número, a tela diz isso. |
+| RF-20 | **DEVE** montar o texto de busca a partir dos requisitos: obrigatórios ligados por `AND`, termos excluídos por `NOT`, operadores em maiúsculas, expressões entre aspas. `OR` só nas duas formas de gênero de um cargo. Sinônimos valem na nota, não no texto (DP-30). |
+| RF-21 | **DEVE** oferecer versão completa (todos os obrigatórios) e versão curta (até 3 obrigatórios), mostrando quantos operadores cada uma usa e o limite conhecido por plano. Quando o LinkedIn não publica o número, a tela diz isso. A tela começa na curta e explica por quê; a escolha da pessoa vale (DP-26). |
 | RF-22 | "Copiar" é o botão principal. "Abrir no LinkedIn" abre a busca de pessoas numa aba nova, por clique. |
-| RF-23 | A extensão **NÃO DEVE** rodar a busca, ler a página de resultados nem trocar de página. |
+| RF-23 | A extensão **NÃO DEVE** rodar a busca, rolar, clicar nem trocar de página. Ela só abre um perfil por clique da pessoa no botão Próximo perfil (RF-26), nunca sozinha. A página de resultados só é lida por clique da pessoa, no gesto ou no botão do painel (RF-38, RF-25). |
 | RF-24 | A tela **DEVE** explicar em uma frase o limite mensal de buscas da conta gratuita, sem oferecer atalho para escapar dele. |
+| RF-25 | **Botão Ler esta página:** com a leitura ligada (RF-32), o painel mostra o botão na tela da busca e na lista dos 10 primeiros. O clique lê a aba aberta da janela do painel, uma vez, se ela for a busca de pessoas ou um perfil do LinkedIn, e segue o mesmo caminho do gesto. Na primeira vez, o Chrome pede a permissão opcional de `https://www.linkedin.com/*` (D-10). Sem a permissão, nada é lido, e o gesto continua funcionando. Com a leitura desligada, a tela da busca mostra ali mesmo o jeito de ligar, com o aviso. Depois de ler uma página de resultados, o relatório já vem marcado com todos os lidos. |
+| RF-26 | **Botão Próximo perfil (D-11):** com a leitura ligada e alguém da vaga só com pré-nota, o resultado e a lista mostram **Abrir e ler o próximo perfil**, com quantos faltam. Cada clique abre um perfil, o primeiro da lista que só tem pré-nota, numa aba própria, que é criada na primeira vez e reaproveitada depois. A extensão espera o Chrome terminar de carregar a página (até 30 segundos) e o texto parar de mudar (até 15 segundos), e então lê como RF-25. A leitura soma à mesma pessoa, mesmo se o link mudar. Só abre `https://www.linkedin.com/in/<nome>/`. Se a página aberta não for um perfil, como o login ou uma verificação, nada é lido. Quem abriu e não pôde ser lido fica para o fim, enquanto o painel estiver aberto. |
 
 ### 6.4 Entrada do perfil
 
 | Id | Requisito |
 |---|---|
 | RF-30 | **Colar:** caixa para o texto do perfil, campo do link e campo do nome, pré-preenchido com a primeira linha e sempre editável. Funciona com qualquer configuração. Link precisa ser `https`. Se não for de perfil do LinkedIn, a tela avisa e deixa seguir. |
-| RF-31 | **Clicar:** item no menu do botão direito, só em páginas de perfil do LinkedIn, e atalho de teclado. Cada gesto lê o texto da área principal da aba atual e o endereço dela, uma vez. |
-| RF-32 | A leitura por clique vem **desligada**. Ligar exige aceitar um aviso próprio, que repete o risco de RF-01 e diz que a regra do LinkedIn não traz exceção para o clique. Dá para desligar quando quiser, e o item some do menu. |
-| RF-33 | A leitura **NÃO DEVE** navegar, rolar, clicar, expandir "ver tudo", abrir outra página, ler outra aba, repetir sozinha nem fazer pedido de rede. Sem espera nem temporizador. |
+| RF-31 | **Clicar:** item no menu do botão direito, só em páginas de perfil e de resultados de pessoas do LinkedIn, e atalho de teclado. Cada gesto lê o texto da área principal da aba atual e o endereço dela, uma vez. |
+| RF-32 | A leitura por clique vem **desligada**. Ligar exige aceitar um aviso próprio, que repete o risco de RF-01 e diz que a regra do LinkedIn não traz exceção para o clique. Dá para desligar quando quiser, e o item some do menu. Quando o texto do aviso muda de sentido, o aceite antigo deixa de valer. |
+| RF-33 | A leitura **NÃO DEVE** navegar, rolar, clicar, expandir "ver tudo", abrir outra página, ler outra aba, repetir sozinha nem fazer pedido de rede. Sem espera nem temporizador. A única exceção é o botão Próximo perfil (RF-26): ele abre um perfil por clique e espera a página carregar, sem rolar nem clicar nela. |
 | RF-34 | Repetir o gesto, ou colar mais texto, em outra página do mesmo perfil soma o texto ao mesmo candidato. O perfil é reconhecido pelo trecho `/in/<nome>/` do link. O texto fica só na memória da sessão, até analisar outro perfil ou fechar o navegador. Depois disso, nova análise do mesmo perfil atualiza a ficha, ficando o maior tempo de cada termo. Link de perfil do LinkedIn é guardado na forma curta, https://www.linkedin.com/in/<nome>/. |
 | RF-35 | Se a leitura trouxer poucas seções, ou houver sinal de lista cortada ("Exibir todas", "Show all"), **DEVE** dizer o que faltou e como completar: rolar a página, abrir "ver tudo" ou colar. Nunca faz isso sozinha. |
 | RF-36 | **A lista se monta sozinha (D-08).** Ao terminar a análise, a pessoa entra na lista da vaga ativa, só com a ficha. A mensagem do resultado traz **Tirar da lista**, que apaga a ficha e o texto em memória. Sem aceite dos avisos ou sem vaga ativa, nada é guardado. |
 | RF-37 | Toda análise usa a **vaga ativa**, sempre visível no topo da conversa. Sem vaga ativa, a conversa pede para criar ou escolher uma. |
+| RF-38 | **Página de resultados:** o gesto na busca de pessoas do LinkedIn lê as pessoas daquela página, uma vez, com link e nome de cada uma, até 40. Nada é rolado, clicado ou aberto. Da página só saem nome, link, título e trecho; local, conexões em comum e botões ficam de fora, e a empresa escrita depois de um cargo também (D-09, DP-29). |
+| RF-39 | **Pré-nota:** quem só foi visto na lista tem número e selo "Pré-nota", sem faixa, com o que não apareceu como "Não visto na lista" (DP-27). Só termos da lista contam, e palavra de cargo só no título. O termo com anos mínimos que aparece conta inteiro, com "tempo a conferir", porque a lista não mostra tempo. Quem não mostrou nada da vaga não é guardado, e a tela conta quantos (DP-28). Ler de novo soma sem duplicar. Quem já tem nota completa não muda. Analisar o perfil depois troca a pré-nota pela nota completa, na mesma pessoa. |
 
 ### 6.5 Leitura do perfil
 
@@ -179,7 +183,7 @@ Consequências no produto: nada é inserido na página do LinkedIn (RNF-03), a l
 | Id | Requisito |
 |---|---|
 | RF-70 | Por vaga, com um clique, gera um **PDF** de verdade, baixado direto, sem passar pela tela de imprimir. O padrão são os 10 melhores, com opção de todos os que estão filtrados. **Planilha CSV** é a segunda opção, com o mesmo conteúdo. Relatório filtrado diz "N de M candidatos" e quais filtros valem. |
-| RF-71 | Conteúdo: título da vaga, data, requisitos e, por dev: posição, nome, link clicável, nota, faixa, o que bateu, o que faltou, experiência total, cargo atual e etapa. Notas só entram se a pessoa marcar. O CSV traz os mesmos dados de cabeçalho (título, data, requisitos, frase e aviso) antes da tabela. PDF e CSV explicam que "Faltou" significa não encontrado no texto. |
+| RF-71 | Conteúdo: título da vaga, data, requisitos (com os anos mínimos de cada termo, como "C# · 5 anos") e, por dev: posição, nome, link clicável, nota, faixa, o que bateu, o que faltou, experiência total, cargo atual e etapa. Notas só entram se a pessoa marcar. O CSV traz os mesmos dados de cabeçalho (título, data, requisitos, frase e aviso) antes da tabela. PDF e CSV explicam que "Faltou" significa não encontrado no texto. |
 | RF-72 | O relatório **NÃO DEVE** ter foto, código executável nem recurso externo. **DEVE** trazer a frase de RF-56 e a data de geração. O link de cada dev é clicável no PDF, só `https`. |
 | RF-73 | **DEVE** avisar: o arquivo tem dados pessoais, sai do controle da extensão e quem o recebe também passa a responder por eles. Na primeira vez, pede aceite. Depois, o aviso fica visível junto do botão, sem clique a mais. |
 | RF-74 | Toda célula do CSV que comece com `=`, `+`, `-`, `@`, tabulação ou retorno **DEVE** ser neutralizada, para a planilha não executar fórmula vinda do texto de terceiros. |
@@ -208,7 +212,6 @@ Consequências no produto: nada é inserido na página do LinkedIn (RNF-03), a l
 | Item | Motivo |
 |---|---|
 | Percorrer páginas de busca ou perfis sozinha | Decisão do dono (D-06). É o caso mais direto de proibição do LinkedIn e o que mais pesa na LGPD |
-| Ler os cartões da página de resultados | D-06. Cópia em lote, pouca informação, dados de quem ninguém olhou |
 | Convite ou mensagem automáticos | D-07. Proibido pelo LinkedIn e de risco direto à conta |
 | Enviar dados de candidatos a servidor, sincronizar | D-07 e P-1 |
 | Base compartilhada entre recrutadores | D-07. Exige servidor e muda quem responde pelos dados |
@@ -218,14 +221,14 @@ Consequências no produto: nada é inserido na página do LinkedIn (RNF-03), a l
 | Importar dados de volta | DP-12 |
 | Outros idiomas de tela | DP-17 |
 | Caixa de perguntas livres na conversa | D-05 e D-08 |
-| Publicar no GitHub ou na loja | D-04 |
+| Publicar na loja do Chrome | D-04 e D-12 |
 
 ## 7. Requisitos de qualidade
 
 | Id | Requisito |
 |---|---|
 | RNF-01 | **Nenhuma rede.** A extensão não faz pedido de rede. A regra de segurança das páginas dela bloqueia qualquer conexão, e um teste prova zero pedidos. Abas abertas pela pessoa são do navegador, não da extensão. |
-| RNF-02 | **Permissões mínimas:** `storage`, `sidePanel`, `activeTab`, `scripting` e `contextMenus`. **Sem** acesso fixo a sites, sem script fixo em páginas e sem `tabs`, `cookies`, `history`, `downloads`, `alarms` ou `webRequest`. O teste compara a lista exata. |
+| RNF-02 | **Permissões mínimas:** `storage`, `sidePanel`, `activeTab`, `scripting` e `contextMenus`. A única permissão de site é opcional, `https://www.linkedin.com/*`, pedida pelo Chrome no primeiro clique em Ler esta página (D-10). **Sem** acesso fixo a sites, sem script fixo em páginas e sem `tabs`, `cookies`, `history`, `downloads`, `alarms` ou `webRequest`. O teste compara a lista exata. |
 | RNF-03 | **Nada na página do LinkedIn:** a extensão não insere botão, selo nem estilo, e não muda a aparência do site. Só lê o texto quando recebe o gesto. Também não usa cookies nem endereços internos do site. |
 | RNF-04 | **Texto de terceiros é só texto.** Nunca é tratado como código nem HTML, no painel e no relatório. Link só `https`. |
 | RNF-05 | Os dados ficam no armazenamento local do Chrome, **sem criptografia**. Quem tem acesso ao perfil do Chrome na máquina consegue lê-los. A tela de Privacidade diz isso. |
@@ -242,6 +245,8 @@ Consequências no produto: nada é inserido na página do LinkedIn (RNF-03), a l
 - **Partes:** `src/core` (regras puras, sem nada do Chrome: texto, termos, tempo, vaga, leitor, nota, busca, relatório, prazo, trava), `src/platform` (o que fala com o Chrome), `src/background` (menu, atalho, leitura), `src/panel` (telas). TypeScript, esbuild, testes com `node:test`, jsdom e Playwright, como na Candidata+.
 - **Por que texto, e não a estrutura da página:** o leitor recebe texto puro, então clique e colagem usam o mesmo caminho, a mudança de HTML do LinkedIn afeta pouco e tudo é testável sem navegador.
 - **Caminho do clique:** gesto no menu ou atalho → permissão temporária só daquela aba (`activeTab`) → uma função curta lê o texto de `main`, o endereço e o título → o resultado vai para a memória de sessão (`storage.session`) → o painel abre, lê e limpa. A permissão termina quando a pessoa navega.
+- **Caminho do botão (D-10):** clique em Ler esta página → pedido da permissão opcional do LinkedIn, feito no próprio clique → a aba aberta da janela do painel → a mesma função curta de leitura → a análise, sem passar pela memória de sessão. Sem a permissão, nada é lido.
+- **Caminho do Próximo perfil (D-11):** clique → pedido da permissão opcional, feito no próprio clique → o próximo com pré-nota → a aba dos perfis abre o link limpo → espera carregar → confere que é um perfil → espera o texto parar de mudar → a mesma função curta de leitura → a análise da mesma pessoa. Um perfil por clique.
 - **Por que não um botão dentro do painel:** a documentação do Chrome lista os gestos que dão essa permissão (ícone, menu do botão direito, atalho, barra de endereços), e clique dentro do painel não está na lista (DP-13).
 - **Apagamento pelo prazo** roda ao abrir o navegador e ao abrir o painel, sem precisar da permissão `alarms`.
 - **PDF:** um gerador pequeno e próprio em `src/core/report`, com as fontes padrão do formato, quebra de linha, paginação e links clicáveis. Nenhuma biblioteca entra no pacote (RNF-12, DP-21).
@@ -304,6 +309,9 @@ Tipo de prova: **A** é teste automático de regra, **P** é teste do painel no 
 | CA-26 | A conversa não grava nada: ao fechar e reabrir, só aparece o que está na lista, e apagar alguém o tira de todas as mensagens | P |
 | CA-27 | Acentos do português saem certos no PDF, e nome em outro alfabeto gera `?` com aviso na tela | A |
 | CA-28 | O PDF baixado abre em leitor real, os links funcionam e a página fica legível na tela e impressa | **M** |
+| CA-29 | Numa página simulada, a leitura traz uma entrada por pessoa, sem barra, lateral, anúncio ou conexão em comum, e o painel enche a lista com pré-nota, sem guardar texto da página. A prova dos gêmeos vale: nome, cidade e conexões não mudam a ficha | A |
+| CA-30 | Na página real de resultados, o gesto ou o botão Ler esta página acha as pessoas que estão na tela, com o link certo, e passar de página soma à lista sem repetir | **M** |
+| CA-31 | No LinkedIn real, cada clique em Abrir e ler o próximo perfil abre um perfil só, e a pessoa passa de pré-nota a nota completa, com o tempo de experiência, sem duplicar | **M** |
 
 **Teste em página simulada não prova a página real.** Os testes A e P mostram que as regras e as telas funcionam com perfis fictícios escritos por nós. Só os critérios M, na conta real, mostram que funciona de verdade no LinkedIn. Eles ficam no roteiro entregue na fatia F11.
 
@@ -311,7 +319,7 @@ Tipo de prova: **A** é teste automático de regra, **P** é teste do painel no 
 
 | Id | Risco | O que reduz | O que sobra |
 |---|---|---|---|
-| R-01 | Conta do recrutador sofrer limitação | Sem automação, um perfil por gesto, nada inserido na página, clique desligado por padrão, colar como alternativa | **Continua existindo**, e as regras não trazem exceção para o clique |
+| R-01 | Conta do recrutador sofrer limitação | Sem automação, uma página por gesto, nada inserido na página, clique desligado por padrão, colar como alternativa | **Continua existindo**, e as regras não trazem exceção para o clique. Ler a página de resultados é mais perto de cópia em lote do que ler um perfil por vez (D-09) |
 | R-02 | Responsabilidade pela LGPD | Ficha mínima, prazo, avisos, ferramentas de atendimento | É de quem usa. Falta revisão jurídica antes de publicar |
 | R-03 | Discriminação indireta | Lista fechada, trava, sem teto de experiência, prova dos gêmeos, termo livre fora de Sobre | A trava é lista de palavras e deixa passar frases que não previu: num teste às cegas, 8 de 60 frases discriminatórias passaram e 4 de 60 frases legítimas foram barradas, antes dos últimos ajustes. A pessoa ainda pode criar critério ruim com termo técnico. Quem escreve menos no perfil tira nota menor, e a tela diz "não encontrado no texto" para deixar isso visível |
 | R-04 | Texto real diferente do que imaginamos, ou página carregada pela metade | Leitor por texto, aviso de leitura incompleta, colar como alternativa | Só a conta real prova. Os modelos de teste são fictícios |

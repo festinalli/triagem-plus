@@ -8,7 +8,7 @@ A Triagem+ foi feita **sem ler, usar ou copiar** qualquer extensão concorrente:
 
 ## O que veio da Candidata+
 
-A Candidata+ é outro projeto do mesmo dono, em `C:/Users/fabio/Documents/projetos/opentowork`. A licença dela é **Apache-2.0**. O código foi lido pelo marco `onda-4`, com `git show onda-4:<caminho>`, e nada foi alterado lá.
+A Candidata+ é outro projeto do mesmo dono. A licença dela é **Apache-2.0**. O código foi lido pelo marco `onda-4`, com `git show onda-4:<caminho>`, e nada foi alterado lá.
 
 Cada linha abaixo foi conferida: o caminho existe no marco `onda-4` e existe aqui. A coluna "Como foi usado" diz se o arquivo é igual, quase igual ou adaptado, pela comparação dos dois arquivos.
 

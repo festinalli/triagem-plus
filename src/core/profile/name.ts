@@ -30,7 +30,8 @@ const PARTICLES: ReadonlySet<string> = new Set([
 const NOT_NAME_WORDS: ReadonlySet<string> = new Set([
   'desenvolvedor', 'desenvolvedora', 'engenheiro', 'engenheira', 'analista', 'arquiteto', 'arquiteta', 'programador',
   'programadora', 'consultor', 'consultora', 'gerente', 'coordenador', 'coordenadora', 'lider', 'especialista', 'diretor',
-  'diretora', 'recrutador', 'recrutadora', 'estagiario', 'estagiaria', 'senior', 'pleno', 'plena', 'junior', 'profissional',
+  // "Júnior" fica de fora de propósito: é sobrenome comum, e sozinho, ou junto de um cargo daqui, já não passa.
+  'diretora', 'recrutador', 'recrutadora', 'estagiario', 'estagiaria', 'senior', 'pleno', 'plena', 'profissional',
   'developer', 'engineer', 'architect', 'programmer', 'consultant', 'manager', 'recruiter', 'specialist', 'director',
   'lead', 'tech', 'software', 'backend', 'frontend', 'fullstack', 'stack', 'devops', 'qa', 'cto', 'ceo',
   'perfil', 'profile', 'contato', 'contact', 'seguir', 'follow', 'seguidores', 'followers', 'mensagem', 'mensagens', 'message',

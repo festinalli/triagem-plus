@@ -77,7 +77,8 @@ function searchedInBoth(
   found: ReadonlyMap<string, CardTerm>,
 ): string[] {
   // A leitura nova cobre tudo o que a anterior leu: o que ela procurou vale para a ficha inteira (RF-55).
-  const covers = previous.sectionsRead.every((section) => next.sectionsRead.includes(section));
+  // A lista de resultados nunca procura termo livre, então não conta aqui (RF-39).
+  const covers = previous.sectionsRead.every((section) => section === 'listing' || next.sectionsRead.includes(section));
   const inNext = new Set(next.searchedFreeTerms);
   if (covers) return sortedUnion(previous.searchedFreeTerms, next.searchedFreeTerms).filter((key) => inNext.has(key) || found.has(key));
   return searchedInBothParts(previous.searchedFreeTerms, next.searchedFreeTerms, found);

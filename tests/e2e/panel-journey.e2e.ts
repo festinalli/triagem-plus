@@ -203,6 +203,7 @@ describe('painel: avisos, vagas, requisitos e busca', { timeout: 180_000 }, () =
     await useAllSuggestions(page);
     await page.getByRole('button', { name: 'Montar a busca' }).click();
     await page.getByRole('heading', { name: 'Busca para o LinkedIn' }).waitFor();
+    await page.getByLabel('Completa').check();
     const full = await page.getByLabel('Texto da busca').inputValue();
     assert.match(full, /"Java" AND /);
     assert.match(await page.getByTestId('operators').innerText(), /operadores/);
@@ -225,6 +226,62 @@ describe('painel: avisos, vagas, requisitos e busca', { timeout: 180_000 }, () =
     await page.getByText('Busca copiada.').waitFor();
     assert.equal(await readClipboard(), short);
     assert.deepEqual(linkedinHits, [], 'copiar não abre nada');
+    await page.close();
+  });
+
+  test('DP-26: a tela começa na curta, explica, respeita a escolha e leva a colar um perfil', async () => {
+    const { page } = await openPanel(h);
+    await acceptTerms(page);
+    await createJob(page, 'Teste real', ['Requisitos:', '- C#', '- .NET', '- ASP.NET Core', '- Git'].join('\n'));
+    await useAllSuggestions(page);
+    await page.getByRole('button', { name: 'Montar a busca' }).click();
+    await page.getByRole('heading', { name: 'Busca para o LinkedIn' }).waitFor();
+    assert.equal(await page.getByLabel(/^Curta/).isChecked(), true);
+    assert.equal(await page.getByLabel('Texto da busca').inputValue(), '"C#" AND ".NET" AND "ASP.NET"');
+    await page.getByText('Começamos pela versão curta, que acha mais gente').waitFor();
+    // A escolha da pessoa vale, e a tela diz o que fazer se vier zero.
+    await page.getByLabel('Completa').check();
+    assert.equal(await page.getByLabel('Texto da busca').inputValue(), '"C#" AND ".NET" AND "ASP.NET" AND "Git"');
+    assert.match(await page.getByTestId('operators').innerText(), /3 operadores/);
+    await page.getByText('Se o LinkedIn disser “Nenhum resultado”').waitFor();
+    assert.equal(await page.getByText('Começamos pela versão curta').count(), 0);
+    await page.getByRole('button', { name: 'Colar um perfil' }).click();
+    await page.getByRole('heading', { name: 'Colar o perfil' }).waitFor();
+    await page.close();
+  });
+
+  test('com sugestões na tela não dá para seguir para a busca, e voltar a uma vaga sem requisitos traz as sugestões de novo', async () => {
+    const { page } = await openPanel(h);
+    await acceptTerms(page);
+    await createJob(page, 'Sem aplicar', ['Requisitos:', '- C#', '- .NET'].join('\n'));
+    await page.getByRole('button', { name: 'Usar os marcados' }).waitFor();
+    assert.equal(await page.getByRole('button', { name: 'Montar a busca' }).count(), 0, 'seguir agora perderia as sugestões');
+    // Sair por outro caminho e voltar não perde o trabalho.
+    await page.getByRole('button', { name: 'Voltar ao início' }).click();
+    await page.getByRole('button', { name: 'Requisitos' }).click();
+    await page.getByRole('button', { name: 'Usar os marcados' }).click();
+    await page.getByRole('list', { name: 'Requisitos cadastrados' }).waitFor();
+    await page.getByRole('button', { name: 'Montar a busca' }).click();
+    assert.equal(await page.getByLabel('Texto da busca').inputValue(), '"C#" AND ".NET"');
+    await page.close();
+  });
+
+  test('busca sem texto diz o motivo: sem requisitos, só desejáveis ou só tempo de experiência', async () => {
+    const { page } = await openPanel(h);
+    await acceptTerms(page);
+    const openSearch = async (text: string): Promise<void> => {
+      await createJob(page, 'Motivo', text);
+      await useAllSuggestions(page);
+      await page.getByRole('button', { name: 'Montar a busca' }).click();
+      await page.getByRole('heading', { name: 'Busca para o LinkedIn' }).waitFor();
+    };
+    await openSearch('Desejável\n- C#\n- Git');
+    await page.getByText('Todos os requisitos desta vaga estão como Desejável').waitFor();
+    assert.equal(await page.getByLabel('Texto da busca').count(), 0);
+    await page.getByRole('button', { name: 'Voltar ao início' }).click();
+    await page.getByRole('button', { name: 'Trocar' }).click();
+    await openSearch('Requisitos:\n- 5 anos de experiência');
+    await page.getByText('são só de tempo de experiência').waitFor();
     await page.close();
   });
 

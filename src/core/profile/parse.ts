@@ -24,7 +24,7 @@ import { canLabelJob, isHiddenTextLine, isListCutLine, isPageNoiseLine, titleRol
 import type { SectionRole } from './sections.ts';
 import type { ParsedExperience, ParsedProfile } from './types.ts';
 
-type TextSection = Exclude<ProfileSection, 'experience'>;
+type TextSection = Exclude<ProfileSection, 'experience' | 'listing'>;
 /** Onde a leitura está. `null` é o cabeçalho, ou qualquer texto antes do primeiro título. */
 type Place = SectionRole | null;
 
@@ -155,7 +155,7 @@ export function parseProfileText(text: string, asOf: YearMonth): ParsedProfile {
   const experiences = uniqueExperiences(experienceRuns.flatMap((run) => readExperiences(run, asOf)));
   const spans: MonthSpan[] = experiences.flatMap((experience) => (experience.span === null ? [] : [experience.span]));
   const hasContent = (section: ProfileSection): boolean =>
-    section === 'experience' ? experiences.length > 0 : texts[section].length > 0;
+    section === 'listing' ? false : section === 'experience' ? experiences.length > 0 : texts[section].length > 0;
 
   return {
     name: readNameFromLines(lines),

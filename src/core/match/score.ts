@@ -104,6 +104,24 @@ function evaluate(
     : scored(requirement, HALF_CREDIT, evidence, 'mentioned_only');
 }
 
+/**
+ * A pré-nota (RF-39, DP-27). O que a lista mostrou conta inteiro. O que ela não mostrou conta zero, para quem mostra mais subir
+ * na lista, e o aviso diz que falta conferir. Tempo total e termo livre nem têm como aparecer nela, então ficam fora da conta.
+ * O tempo de um termo também não aparece: o termo conta inteiro, e a observação diz que o tempo fica a conferir no perfil.
+ */
+function evaluateListing(requirement: Requirement, terms: ReadonlyMap<string, CardTerm>, searched: ReadonlySet<string>): Evaluation {
+  const lookup = lookupOf(requirement);
+  if (lookup.kind === 'total' || (lookup.kind !== 'listed' && !searched.has(lookup.key))) {
+    return { result: { requirementId: requirement.id, status: 'needs_reanalysis', credit: 0, evidence: [], note: 'not_in_listing' }, fraction: null };
+  }
+  const term = terms.get(lookup.key);
+  if (term === undefined) return scored(requirement, NO_CREDIT, [], 'not_in_listing');
+  const evidence = evidenceOf(term, lookup.kind === 'listed' ? lookup.key : requirement.label);
+  return requirement.kind === 'term' && hasMinimum(requirement.minYears)
+    ? scored(requirement, FULL_CREDIT, evidence, 'time_not_measurable')
+    : scored(requirement, FULL_CREDIT, evidence);
+}
+
 /** 100 × soma(peso × crédito) ÷ soma(pesos), com meio para cima. */
 function roundedScore(items: ReadonlyArray<{ readonly weight: number; readonly fraction: Fraction }>): number {
   let num = 0n;
@@ -125,6 +143,11 @@ function bandOf(score: number, allRequiredMet: boolean, requiredPending: boolean
   return score < WEAK_BELOW ? 'weak' : 'partial';
 }
 
+/** A pessoa só foi vista na página de resultados: o número é pré-nota, sem faixa (RF-39). */
+export function isListingOnly(card: Pick<ProfileCard, 'sectionsRead'>): boolean {
+  return card.sectionsRead.length > 0 && card.sectionsRead.every((section) => section === 'listing');
+}
+
 /** Falso quando nenhum requisito foi avaliado: a nota 0 não quer dizer nada, e a tela diz "sem nota". */
 export function isScored(match: MatchResult): boolean {
   return match.results.some((result) => result.status !== 'needs_reanalysis');
@@ -138,7 +161,11 @@ export function computeMatch(card: ProfileCard, requirements: readonly Requireme
   const terms = new Map(card.terms.map((term) => [term.key, term]));
   const searched = new Set(card.searchedFreeTerms);
 
-  const evaluated = requirements.map((requirement) => ({ requirement, ...evaluate(requirement, card, terms, searched) }));
+  const listingOnly = isListingOnly(card);
+  const evaluated = requirements.map((requirement) => ({
+    requirement,
+    ...(listingOnly ? evaluateListing(requirement, terms, searched) : evaluate(requirement, card, terms, searched)),
+  }));
   const counted = evaluated.flatMap(({ requirement, fraction }) => (fraction === null ? [] : [{ requirement, fraction }]));
   const required = counted.filter(({ requirement }) => requirement.importance === 'required');
   const requiredPending = evaluated.some(({ requirement, fraction }) => fraction === null && requirement.importance === 'required');
@@ -147,7 +174,8 @@ export function computeMatch(card: ProfileCard, requirements: readonly Requireme
   const score = roundedScore(counted.map(({ requirement, fraction }) => ({ weight: WEIGHT[requirement.importance], fraction })));
   return {
     score,
-    band: bandOf(score, requiredMet === required.length, requiredPending),
+    // Pré-nota não tem faixa. O campo fica neutro, e a tela e o relatório escrevem "Pré-nota" no lugar.
+    band: listingOnly ? 'partial' : bandOf(score, requiredMet === required.length, requiredPending),
     results: evaluated.map(({ result }) => result),
     requiredMet,
     requiredTotal: required.length,

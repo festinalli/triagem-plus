@@ -116,6 +116,7 @@ export const RECORD = {
   source: 'Como entrou',
   pasted: 'Texto colado',
   clicked: 'Leitura por clique',
+  results: 'Página de resultados',
   added: 'Entrou em',
   updated: 'Atualizada em',
   keepUntil: 'Guardada até',

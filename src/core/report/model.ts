@@ -2,7 +2,7 @@
 // os dois trazem o mesmo conteúdo. Puro: sem relógio (o "agora" chega por parâmetro), sem Chrome e sem DOM.
 import type { Band, Candidate, Job, RequirementResult, Stage } from '../model.ts';
 import { sortCandidates, TOP_SIZE } from '../match/rank.ts';
-import { isScored } from '../match/score.ts';
+import { isListingOnly, isScored } from '../match/score.ts';
 
 export type ReportScope = 'top10' | 'all';
 
@@ -27,6 +27,8 @@ export interface ReportRequirement {
 
 export interface ReportRow {
   readonly position: number;
+  /** O nome do campo do que falta conferir: "Não visto na lista" na pré-nota (o mesmo nome da tela, DP-27), "A rever" na nota completa. */
+  readonly reviewLabel: string;
   readonly name: string;
   readonly link: string;
   /** "85" ou "sem nota". */
@@ -34,6 +36,8 @@ export interface ReportRow {
   /** Forte, Parcial ou Fraco. Nulo quando não há nota avaliada. */
   readonly bandLabel: string | null;
   readonly band: Band | null;
+  /** Só foi vista na página de resultados (RF-39). */
+  readonly preview: boolean;
   readonly met: readonly string[];
   readonly missing: readonly string[];
   /** Requisitos novos, ainda não conferidos no perfil (RF-55). Não pesam na nota e não contam como falta da pessoa. */
@@ -58,6 +62,8 @@ export interface ReportModel {
   readonly totalCandidates: number;
   /** Algum candidato tem requisito a rever. A legenda de "A rever" só entra no arquivo se isto for verdade. */
   readonly hasReview: boolean;
+  /** Alguém do arquivo só tem pré-nota. A legenda dela só entra se isto for verdade. */
+  readonly hasPreview: boolean;
   readonly requirements: readonly ReportRequirement[];
   readonly rows: readonly ReportRow[];
 }
@@ -81,8 +87,24 @@ export const PERSONAL_DATA_NOTICE =
 /** Explica "Faltou" (RF-50): ausência no texto não é ausência na pessoa. */
 export const MISSING_NOTICE = 'Faltou significa que não foi encontrado no texto do perfil; a pessoa pode ter e não ter citado.';
 
+/** Explica a pré-nota (RF-39): o que a lista não mostrou não é falta da pessoa. */
+export const PREVIEW_NOTICE =
+  'Pré-nota: calculada só com o que aparece na lista de resultados do LinkedIn, que não mostra tempo de experiência. "Tempo a conferir" e o que a lista não mostrou ficam para conferir no perfil antes de decidir.';
+export const REVIEW_LABEL = 'A rever';
+export const NOT_IN_LISTING_LABEL = 'Não visto na lista';
+export const PREVIEW_LABEL = 'Pré-nota';
+
 export const NO_SCORE_TEXT = 'sem nota';
 export const PARTIAL_SUFFIX = ' (em parte)';
+/** O termo apareceu, mas sem como medir o tempo pedido. */
+export const TIME_SUFFIX = ' (tempo a conferir)';
+
+/** "C# · 5 anos". O tempo total já diz os anos no próprio nome. */
+function requirementLabel(requirement: Job['requirements'][number]): string {
+  const years = requirement.minYears;
+  if (requirement.kind === 'total_experience' || years === undefined || years <= 0) return requirement.label;
+  return `${requirement.label} · ${years} ${years === 1 ? 'ano' : 'anos'}`;
+}
 
 function two(n: number): string {
   return String(n).padStart(2, '0');
@@ -124,12 +146,17 @@ function splitResults(candidate: Candidate, labels: ReadonlyMap<string, string>)
   const review: string[] = [];
   const labelOf = (result: RequirementResult): string => labels.get(result.requirementId) ?? result.requirementId;
   for (const result of candidate.match.results) {
+    // O que a lista não mostrou não é falta da pessoa: fica para rever no perfil (RF-39).
+    if (result.note === 'not_in_listing') {
+      review.push(labelOf(result));
+      continue;
+    }
     switch (result.status) {
       case 'met':
-        met.push(labelOf(result));
+        met.push(labelOf(result) + (result.note === 'time_not_measurable' ? TIME_SUFFIX : ''));
         break;
       case 'partial':
-        met.push(labelOf(result) + PARTIAL_SUFFIX);
+        met.push(labelOf(result) + (result.note === 'time_not_measurable' ? TIME_SUFFIX : PARTIAL_SUFFIX));
         break;
       case 'not_found':
         missing.push(labelOf(result));
@@ -151,14 +178,17 @@ export function buildReport(input: BuildReportInput): ReportModel {
   const chosen = scope === 'top10' ? ordered.slice(0, TOP_SIZE) : ordered;
   const rows = chosen.map((candidate, index): ReportRow => {
     const scored = isScored(candidate.match);
+    const preview = isListingOnly(candidate.card);
     const { met, missing, review } = splitResults(candidate, labels);
     return {
       position: index + 1,
+      reviewLabel: preview ? NOT_IN_LISTING_LABEL : REVIEW_LABEL,
       name: candidate.name,
       link: candidate.profileUrl,
       scoreText: scored ? String(candidate.match.score) : NO_SCORE_TEXT,
-      bandLabel: scored ? BAND_LABELS[candidate.match.band] : null,
-      band: scored ? candidate.match.band : null,
+      bandLabel: !scored ? null : preview ? PREVIEW_LABEL : BAND_LABELS[candidate.match.band],
+      band: scored && !preview ? candidate.match.band : null,
+      preview,
       met,
       missing,
       review,
@@ -177,9 +207,10 @@ export function buildReport(input: BuildReportInput): ReportModel {
     filterTexts,
     includeNotes,
     totalCandidates: allCount,
-    hasReview: rows.some((row) => row.review.length > 0),
+    hasReview: rows.some((row) => !row.preview && row.review.length > 0),
+    hasPreview: rows.some((row) => row.preview),
     requirements: job.requirements.map((requirement) => ({
-      label: requirement.label,
+      label: requirementLabel(requirement),
       required: requirement.importance === 'required',
       importanceLabel: requirement.importance === 'required' ? 'Obrigatório' : 'Desejável',
     })),

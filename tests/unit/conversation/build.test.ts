@@ -139,6 +139,7 @@ describe('buildConversation: passos', () => {
     assert.ok(message.built.full.text.endsWith(' NOT "Estágio"'));
     assert.equal(message.built.short.text.includes('NOT'), false);
     assert.equal(message.searchableCount, 2);
+    assert.ok(message.actions.some((a) => a.id === 'open_paste'), 'depois de buscar, o próximo passo é colar um perfil');
   });
 
   test('busca com termo excluído proibido: o termo sai da busca e vem em refusedExcluded', () => {

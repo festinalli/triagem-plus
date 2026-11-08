@@ -20,9 +20,13 @@ describe('manifesto', () => {
   });
 
   test('sem acesso fixo a sites, sem script de conteúdo e sem recursos acessíveis', () => {
-    for (const key of ['host_permissions', 'optional_host_permissions', 'optional_permissions', 'content_scripts', 'web_accessible_resources']) {
+    for (const key of ['host_permissions', 'optional_permissions', 'content_scripts', 'web_accessible_resources']) {
       assert.equal(manifest[key], undefined, key);
     }
+  });
+
+  test('D-10: a única permissão de site é opcional e só do LinkedIn', () => {
+    assert.deepEqual(manifest['optional_host_permissions'], ['https://www.linkedin.com/*']);
   });
 
   test("a CSP das páginas da extensão bloqueia toda conexão (connect-src 'none')", () => {

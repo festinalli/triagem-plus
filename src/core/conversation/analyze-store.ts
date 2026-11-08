@@ -6,9 +6,12 @@
 // nenhum nome, link ou texto de candidato sai por registro (RNF-11).
 import type { Candidate, Job, ProfileCard } from '../model.ts';
 import { analyzeProfile, mergeCards } from '../match/analyze.ts';
-import { computeMatch } from '../match/score.ts';
+import { buildListingCard } from '../match/card.ts';
+import { computeMatch, isListingOnly } from '../match/score.ts';
 import { clipProfileText } from '../profile/lines.ts';
 import { canonicalProfileUrl, mergeProfileText, profileKeyOf } from '../profile/merge.ts';
+import { parseResults } from '../results/parse.ts';
+import type { RawResult } from '../results/parse.ts';
 import type { Store } from '../store/store.ts';
 import { needsAcceptance } from './build.ts';
 import { startsWithHttps } from './links.ts';
@@ -95,6 +98,13 @@ async function saveExisting(store: Store, candidate: Candidate): Promise<Candida
   return candidate;
 }
 
+/** Quem veio da lista sem nome legível. A pessoa continua na lista, com o link, para conferir (RF-39). */
+export const NAME_NOT_READ = 'Nome não lido';
+
+function knownName(candidate: Candidate | undefined): string {
+  return candidate === undefined || candidate.name === NAME_NOT_READ ? '' : candidate.name;
+}
+
 export async function analyzeAndStore(deps: AnalyzeDeps, input: AnalyzeInput): Promise<AnalyzeOutcome> {
   const { store, memory } = deps;
   try {
@@ -125,7 +135,7 @@ export async function analyzeAndStore(deps: AnalyzeDeps, input: AnalyzeInput): P
     if (analysis.card.sectionsRead.length === 0) return { ok: false, reason: 'nothing_read' };
 
     // O nome guardado vale mais do que o que veio do texto: corrigir um nome não se desfaz ao analisar de novo (RF-91).
-    const name = existing?.name || sibling?.name || cleanName(input.name) || cleanName(analysis.name);
+    const name = knownName(existing) || knownName(sibling) || cleanName(input.name) || cleanName(analysis.name);
     if (name === '') return { ok: false, reason: 'no_name' };
 
     const card = existing === undefined ? analysis.card : mergeCards(existing.card, analysis.card);
@@ -148,6 +158,9 @@ export async function analyzeAndStore(deps: AnalyzeDeps, input: AnalyzeInput): P
     const saved: { outcome: 'created' | 'updated'; candidate: Candidate } =
       byId === undefined ? await store.upsertByProfile(incoming) : { outcome: 'updated', candidate: await saveExisting(store, incoming) };
 
+    // O perfil aberto trouxe o nome que a lista não deu. A gravação por perfil mantém o nome antigo de propósito (RF-91).
+    if (existing?.name === NAME_NOT_READ) await store.saveCandidate({ ...saved.candidate, name });
+
     // Só agora o texto anterior sai da memória: analisar outro perfil o substitui (CA-09). Falha aqui não perde a ficha.
     await memory.write({ profileKey: key, candidateId: saved.candidate.id, jobId: job.id, text: clipProfileText(combined) }).catch(() => undefined);
 
@@ -158,6 +171,98 @@ export async function analyzeAndStore(deps: AnalyzeDeps, input: AnalyzeInput): P
       addedNothing: existing !== undefined && sameCard(existing.card, card),
       notProfileLink: key === null,
     };
+  } catch {
+    return { ok: false, reason: 'save_failed' };
+  }
+}
+
+export type ListingFailure = 'no_acceptance' | 'no_job' | 'no_requirements' | 'no_listing_requirement' | 'nothing_read' | 'save_failed';
+
+export type ListingOutcome =
+  | {
+      readonly ok: true;
+      /** Pessoas que a página mostrou. */
+      readonly read: number;
+      readonly created: number;
+      /** Já estavam na lista só com pré-nota, e a ficha somou o que veio. */
+      readonly updated: number;
+      /** Já têm nota completa: nada muda (RF-39). */
+      readonly kept: number;
+      /** Não mostraram nada do que a vaga pede: não são guardadas (RF-39). */
+      readonly nothingSeen: number;
+      /** Entraram sem nome legível: dá para conferir pelo link. */
+      readonly noName: number;
+      /** Não coube guardar: a leitura parou aí. */
+      readonly failed: number;
+    }
+  | { readonly ok: false; readonly reason: ListingFailure };
+
+/**
+ * Analisa as pessoas de uma página de resultados pela vaga ativa (D-09, RF-39). O texto da página não fica guardado: de cada
+ * pessoa sai a ficha, o nome e o link. Quem já tem nota completa não muda, e quem não mostrou nada do que a vaga pede não entra.
+ */
+export async function analyzeListing(deps: AnalyzeDeps, items: readonly RawResult[]): Promise<ListingOutcome> {
+  const { store, memory } = deps;
+  try {
+    const settings = await store.getSettings();
+    if (needsAcceptance(settings)) return { ok: false, reason: 'no_acceptance' };
+    const job = await activeJobOf(store);
+    if (job === null) return { ok: false, reason: 'no_job' };
+    if (job.requirements.length === 0) return { ok: false, reason: 'no_requirements' };
+    const entries = parseResults(items);
+    // A vaga só pede o que a lista nunca mostra: dizer que ninguém "mostrou" seria falso.
+    const blank = computeMatch(buildListingCard({ headline: '', details: '' }, job.requirements), job.requirements);
+    if (blank.results.every((result) => result.status === 'needs_reanalysis')) return { ok: false, reason: 'no_listing_requirement' };
+    if (entries.length === 0) return { ok: false, reason: 'nothing_read' };
+
+    const now = deps.now();
+    const everyone = (await store.listAllCandidates()).items;
+    const counts = { created: 0, updated: 0, kept: 0, nothingSeen: 0, noName: 0, failed: 0 };
+    for (const entry of entries) {
+      const existing = everyone.find((item) => item.jobId === job.id && item.profileKey === entry.key);
+      if (existing !== undefined && !isListingOnly(existing.card)) {
+        counts.kept += 1;
+        continue;
+      }
+      const fresh = buildListingCard(entry, job.requirements);
+      const card = existing === undefined ? fresh : mergeCards(existing.card, fresh);
+      const match = computeMatch(card, job.requirements);
+      if (existing === undefined && match.results.every((result) => result.credit === 0)) {
+        counts.nothingSeen += 1;
+        continue;
+      }
+      // O nome corrigido em outra vaga vale para esta também (RF-91).
+      const sibling = everyone.find((item) => item.profileKey === entry.key);
+      const name = existing?.name || knownName(sibling) || cleanName(entry.name) || NAME_NOT_READ;
+      if (name === NAME_NOT_READ) counts.noName += 1;
+      try {
+        await store.upsertByProfile({
+          id: existing?.id ?? deps.newId(),
+          jobId: job.id,
+          name,
+          profileUrl: entry.url,
+          profileKey: entry.key,
+          card,
+          match,
+          stage: existing?.stage ?? 'new',
+          favorite: existing?.favorite ?? false,
+          notes: existing?.notes ?? '',
+          informedAt: existing?.informedAt ?? null,
+          source: 'results',
+          addedAt: existing?.addedAt ?? now,
+          updatedAt: now,
+        });
+      } catch {
+        counts.failed = entries.length - counts.created - counts.updated - counts.kept - counts.nothingSeen - counts.noName;
+        break;
+      }
+      if (existing === undefined) counts.created += 1;
+      else counts.updated += 1;
+    }
+    if (counts.failed > 0 && counts.created + counts.updated === 0) return { ok: false, reason: 'save_failed' };
+    // Ler outras pessoas substitui o texto da última análise (CA-09).
+    await memory.clear().catch(() => undefined);
+    return { ok: true, read: entries.length, ...counts };
   } catch {
     return { ok: false, reason: 'save_failed' };
   }

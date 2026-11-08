@@ -35,7 +35,8 @@ describe('renderCsv', () => {
     const lines = csv.replace(/^\uFEFF/, '').split('\r\n');
     assert.equal(lines[0], 'Triagem+: Pessoa Desenvolvedora Java Sênior');
     assert.equal(lines[1], 'Relatório gerado em 06/11/2026');
-    assert.ok(lines.includes('Java;Obrigatório') && lines.includes('AWS;Desejável'));
+    // O termo com anos mínimos leva os anos no nome, para o leitor entender o "tempo a conferir".
+    assert.ok(lines.includes('Java · 5 anos;Obrigatório') && lines.includes('AWS;Desejável'));
     for (const piece of [MISSING_NOTICE, REVIEW_NOTICE, FOOTER_PHRASE, PERSONAL_DATA_NOTICE, '1 candidato']) assert.ok(lines.includes(csvCell(piece)), piece);
     assert.ok(lines.indexOf(PERSONAL_DATA_NOTICE) < lines.findIndex((line) => line.startsWith('Posição;')));
   });

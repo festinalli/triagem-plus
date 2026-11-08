@@ -1,6 +1,6 @@
 # Privacidade da Triagem+
 
-> **RASCUNHO PARA REVISÃO DE ADVOGADO.** Este texto não é parecer jurídico e não pode ser publicado nem entregue a terceiros antes de ser revisado por advogado. Os pontos que pedem revisão estão na última seção.
+> **RASCUNHO, AINDA SEM REVISÃO DE ADVOGADO.** Este texto não é parecer jurídico nem a política de privacidade oficial da Triagem+. Ele está público junto com o código (D-12), mas só vale como política depois de revisado por advogado. Os pontos que pedem revisão estão na última seção.
 
 Versão do rascunho: 0.1. Base: [especificação](ESPECIFICACAO.md) (seções 4, 9 e 10) e [decisões](DECISOES.md).
 
@@ -18,6 +18,10 @@ Tudo fica no armazenamento local do Chrome (`chrome.storage.local`), com número
 | Vaga | título, texto colado, requisitos, datas, se está arquivada |
 | Candidato (um por vaga) | nome, link do perfil, a ficha, resultado por requisito, nota, faixa, etapa, favorito, notas de quem usa, data do aviso ao candidato ("informado em"), origem (texto colado ou clique), datas de entrada e de atualização |
 | Ficha | meses de experiência total; cargo atual (só se for de uma lista fechada de palavras de cargo); termos reconhecidos (tecnologias, ferramentas, idiomas e certificados) com a seção, os meses e até 3 cargos; termos livres procurados; seções lidas; sinal de leitura cortada |
+
+**Página de resultados (D-09, D-10).** Com um gesto ou com o botão Ler esta página, a extensão lê as pessoas da página de resultados aberta. Quem mostra na lista algo que a vaga pede é guardado com nome, link, termos e pré-nota, mesmo sem ter sido escolhido um a um. Quem não mostrou nada da vaga não é guardado. O texto da página não fica guardado, nem por um instante depois da análise.
+
+**Próximo perfil (D-11).** Cada clique no botão abre um perfil de quem já está na lista e lê esse perfil, como o botão Ler esta página. Um perfil por clique, nunca sozinho. O que fica guardado é o mesmo de uma análise comum.
 
 **Só na memória da sessão:** o texto do perfil da última análise. Ele some quando a pessoa analisa outro perfil ou fecha o navegador. Nunca vai para o armazenamento permanente.
 
@@ -84,5 +88,6 @@ Nada é decidido sozinho. A nota é apoio, a explicação de cada nota é guarda
 6. **Botão "Abrir no LinkedIn" (DP-14).** As regras do LinkedIn limitam link direto para dentro do serviço. Abrir a busca por link pode cair nisso numa leitura literal. O botão pode ser retirado sem afetar o resto.
 7. **Termos do LinkedIn.** As regras não trazem exceção para leitura por clique, e numa leitura literal até colar o texto pode ser alcançado. Avaliar o risco para quem usa e o texto dos avisos (DP-20).
 8. **Texto dos avisos e dos modelos de mensagem** na tela, e a lista "O que cabe a você".
-9. **Antes de qualquer publicação** (loja do Chrome, GitHub): política de privacidade pública, declaração de dados (R-09) e consulta ao INPI sobre o nome (R-08).
-10. **Limite entre dado sensível e termo técnico**, e discriminação indireta (R-03): revisar a lista da trava e a explicação na tela.
+9. **Publicação.** O código foi aberto no GitHub em 2026-11-07, por decisão do dono (D-12), antes desta revisão. Ainda faltam a política de privacidade revisada, a declaração de dados (R-09) e a consulta ao INPI sobre o nome (R-08). Antes da loja do Chrome, tudo isso é obrigatório.
+10. **Leitura da página de resultados (D-09, DP-28).** Junta dados de mais pessoas de uma vez, inclusive de quem a recrutadora ainda não olhou. Avaliar finalidade, necessidade e o aviso a essas pessoas. Nos termos do LinkedIn, é mais perto de cópia em lote do que ler um perfil por vez.
+11. **Limite entre dado sensível e termo técnico**, e discriminação indireta (R-03): revisar a lista da trava e a explicação na tela.

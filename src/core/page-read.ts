@@ -1,5 +1,6 @@
 // Tipos do texto lido de uma página. Puro: sem Chrome e sem DOM.
 import { readName } from './profile/name.ts';
+import type { ResultsRead } from './results/parse.ts';
 
 /** O que a função de leitura devolve: texto visível da página, endereço e título. */
 export interface PageRead {
@@ -14,6 +15,7 @@ export interface PageRead {
  */
 export type PendingRead =
   | { ok: true; read: PageRead; at: number; windowId?: number }
+  | { ok: true; results: ResultsRead; at: number; windowId?: number }
   | { ok: false; error: string; at: number; windowId?: number };
 
 /** Leitura que ninguém consumiu em 2 minutos não vale mais: sai sem ser analisada. */
@@ -25,6 +27,11 @@ export const PENDING_READ_KEY = 'pendingRead';
 /** Endereço de perfil do LinkedIn: https://www.linkedin.com/in/<nome>, com ou sem o que vem depois (RF-31). */
 export function isProfileAddress(address: string | undefined): boolean {
   return address !== undefined && /^https:\/\/www\.linkedin\.com\/in\/[^/?#\s]+(?:[/?#]|$)/u.test(address);
+}
+
+/** A página de resultados de pessoas do LinkedIn, e só ela: a busca geral mistura empresas e vagas (RF-38). */
+export function isResultsAddress(address: string | undefined): boolean {
+  return address !== undefined && /^https:\/\/www\.linkedin\.com\/search\/results\/people\/?(?:[?#]|$)/u.test(address);
 }
 
 /**

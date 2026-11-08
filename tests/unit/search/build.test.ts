@@ -1,4 +1,4 @@
-// CA-03: textos de busca exatos (RF-20, RF-21). Os sinônimos são os escritos no dicionário.
+// CA-03: textos de busca exatos (RF-20, RF-21, DP-30).
 import { describe, test } from 'node:test';
 import assert from 'node:assert/strict';
 import { TOPIC_REASONS } from '../../../src/core/guard/index.ts';
@@ -42,50 +42,38 @@ describe('CA-03: lista completa, nas duas versões', () => {
     const { text, operators } = fullOf(requirements, excluded);
     assert.equal(
       text,
-      '"Java"'
-        + ' AND ("Kubernetes" OR "k8s" OR "kube")'
-        + ' AND ("C++" OR "cpp" OR "cplusplus")'
-        + ' AND ("C#" OR "csharp" OR "c sharp")'
-        + ' AND (".NET" OR "dotnet" OR "dot net")'
-        + ' AND ("Machine Learning" OR "ml engineering" OR "aprendizado de maquina")'
-        + ' AND "Core Banking"'
-        + ' AND ("Inglês" OR "english")'
-        + ' AND ("AWS Certified Solutions Architect" OR "aws sa" OR "aws solutions architect")'
-        + ' AND ("Sênior" OR "sr")'
-        + ' NOT "PHP" NOT "Estagiário junior"',
+      '"Java" AND "Kubernetes" AND "C++" AND "C#" AND ".NET" AND "Machine Learning" AND "Core Banking" AND "Inglês"'
+        + ' AND "AWS Certified Solutions Architect" AND "Sênior" NOT "PHP" NOT "Estagiário junior"',
     );
-    // 9 AND, 14 OR, 2 NOT.
-    assert.equal(operators, 25);
+    // 9 AND, 2 NOT.
+    assert.equal(operators, 11);
   });
 
-  test('curta: 3 obrigatórios de kind term, sem sinônimos nem excluídos', () => {
+  test('curta: 3 obrigatórios de kind term, sem excluídos', () => {
     assert.deepEqual(shortOf(requirements, excluded), { text: '"Java" AND "Kubernetes" AND "C++"', operators: 2 });
+  });
+
+  test('DP-30: a forma que trouxe resultados no teste real', () => {
+    const net = [term('C#'), term('.NET'), term('ASP.NET'), term('SQL Server'), term('Git')];
+    assert.deepEqual(fullOf(net), { text: '"C#" AND ".NET" AND "ASP.NET" AND "SQL Server" AND "Git"', operators: 4 });
+    assert.deepEqual(shortOf(net), { text: '"C#" AND ".NET" AND "ASP.NET"', operators: 2 });
   });
 });
 
 describe('Cada termo difícil, sozinho', () => {
   const cases: ReadonlyArray<readonly [string, Requirement, string, number]> = [
-    ['C++', term('C++'), '("C++" OR "cpp" OR "cplusplus")', 2],
-    ['C#', term('C#'), '("C#" OR "csharp" OR "c sharp")', 2],
-    ['.NET', term('.NET'), '(".NET" OR "dotnet" OR "dot net")', 2],
+    ['C++', term('C++'), '"C++"', 0],
+    ['C#', term('C#'), '"C#"', 0],
+    ['.NET', term('.NET'), '".NET"', 0],
     ['C', term('C'), '"C"', 0],
-    ['Go', term('Go'), '("Go" OR "golang")', 1],
+    ['Go', term('Go'), '"Go"', 0],
     ['R', term('R'), '"R"', 0],
-    ['Node.js, sem repetir "nodejs"', term('Node.js'), '("Node.js" OR "node" OR "node js")', 2],
-    ['duas palavras', term('Spring Boot'), '("Spring Boot" OR "springboot")', 1],
-    ['Spring, sem o que só repete o termo', term('Spring'), '"Spring"', 0],
-    ['Oracle, sem o que só repete o termo', term('Oracle'), '"Oracle"', 0],
-    ['nível com sinônimo curto', req('Júnior', 'Júnior', 'title_word'), '("Júnior" OR "jr")', 1],
+    ['Node.js', term('Node.js'), '"Node.js"', 0],
+    ['duas palavras', term('Spring Boot'), '"Spring Boot"', 0],
+    ['nível', req('Júnior', 'Júnior', 'title_word'), '"Júnior"', 0],
     ['termo livre, como escrito', req('Open Finance'), '"Open Finance"', 0],
     ['termo livre de duas palavras com acento', req('Meios de Pagamento à Vista'), '"Meios de Pagamento à Vista"', 0],
-    ['Python, sem as formas de versão', term('Python'), '"Python"', 0],
-    ['Java, sem as formas de versão e sem o que contém o termo', term('Java'), '"Java"', 0],
-    ['JavaScript, sem "es6"', term('JavaScript'), '("JavaScript" OR "js" OR "ecmascript")', 2],
-    ['HTML, sem "html5"', term('HTML'), '"HTML"', 0],
-    ['Docker, sem o que só repete o termo', term('Docker'), '"Docker"', 0],
-    ['AWS', term('AWS'), '("AWS" OR "amazon web services")', 1],
-    ['Amazon S3: "s3" não é versão', term('Amazon S3'), '("Amazon S3" OR "s3" OR "aws s3")', 2],
-    ['exame com número: "az 900" não é versão', term('Microsoft Azure Fundamentals'), '("Microsoft Azure Fundamentals" OR "az 900" OR "azure fundamentals")', 2],
+    ['exame com número', term('Microsoft Azure Fundamentals'), '"Microsoft Azure Fundamentals"', 0],
   ];
 
   for (const [name, requirement, text, operators] of cases) {
@@ -106,12 +94,12 @@ describe('RF-20: quem entra', () => {
 
   test('idioma, certificado e palavra de cargo entram por AND', () => {
     const { text } = fullOf([req('Alemão', 'Alemão', 'language'), req('Líder', undefined, 'title_word')]);
-    assert.equal(text, '("Alemão" OR "german") AND "Líder"');
+    assert.equal(text, '"Alemão" AND "Líder"');
   });
 
   test('o mesmo termo duas vezes entra uma só, e "C" não se confunde com "C++"', () => {
     assert.equal(fullOf([term('Lua'), req('lua', 'Lua')]).text, '"Lua"');
-    assert.equal(fullOf([term('C'), term('C++')]).text, '"C" AND ("C++" OR "cpp" OR "cplusplus")');
+    assert.equal(fullOf([term('C'), term('C++')]).text, '"C" AND "C++"');
   });
 
   test('aspas dentro do termo saem, retas ou curvas', () => {
@@ -228,8 +216,8 @@ describe('excluído igual a um termo procurado', () => {
   });
 
   test('sinônimo do termo procurado também conta', () => {
-    assert.deepEqual(fullOf([term('Go')], ['Golang', 'PHP']), { text: '("Go" OR "golang") NOT "PHP"', operators: 2 });
-    assert.deepEqual(fullOf([term('JavaScript')], ['JS']), { text: '("JavaScript" OR "js" OR "ecmascript")', operators: 2 });
+    assert.deepEqual(fullOf([term('Go')], ['Golang', 'PHP']), { text: '"Go" NOT "PHP"', operators: 1 });
+    assert.deepEqual(fullOf([term('JavaScript')], ['JS']), { text: '"JavaScript"', operators: 0 });
     assert.deepEqual(fullOf([term('Python')], ['Python 3']), { text: '"Python"', operators: 0 });
   });
 
@@ -254,12 +242,12 @@ describe('RD-8: cargo sai nas duas formas de gênero', () => {
     return made.requirement;
   };
 
-  test('"Engenheira de dados" traz as duas formas, com os sinônimos, e conta os operadores', () => {
-    assert.deepEqual(fullOf([role('Engenheira de dados')]), { text: '("Engenheiro de dados" OR "Engenheira de dados" OR "data engineer" OR "ingeniero de datos")', operators: 3 });
-    assert.deepEqual(fullOf([role('Engenheiro de dados')]), { text: '("Engenheiro de dados" OR "Engenheira de dados" OR "data engineer" OR "ingeniero de datos")', operators: 3 });
+  test('"Engenheira de dados" traz as duas formas e conta os operadores', () => {
+    assert.deepEqual(fullOf([role('Engenheira de dados')]), { text: '("Engenheiro de dados" OR "Engenheira de dados")', operators: 1 });
+    assert.deepEqual(fullOf([role('Engenheiro de dados')]), { text: '("Engenheiro de dados" OR "Engenheira de dados")', operators: 1 });
   });
 
-  test('na versão curta, sem sinônimos, as duas formas ficam', () => {
+  test('na versão curta, as duas formas ficam', () => {
     assert.deepEqual(shortOf([role('Engenheira de dados')]), { text: '("Engenheiro de dados" OR "Engenheira de dados")', operators: 1 });
     assert.deepEqual(shortOf([role('Arquiteto de software'), role('Sênior')]), { text: '("Arquiteto de software" OR "Arquiteta de software") AND "Sênior"', operators: 2 });
   });
@@ -288,7 +276,7 @@ describe('RD-8: cargo sai nas duas formas de gênero', () => {
   });
 
   test('cargo que não muda fica como está', () => {
-    for (const [label, text] of [['Sênior', '("Sênior" OR "sr")'], ['Tech Lead', '("Tech Lead" OR "lider tecnica" OR "lider tecnico")'], ['Líder', '"Líder"'], ['Analista de dados', '("Analista de dados" OR "data analyst")'], ['Gerente', '"Gerente"']] as const) {
+    for (const [label, text] of [['Sênior', '"Sênior"'], ['Tech Lead', '"Tech Lead"'], ['Líder', '"Líder"'], ['Analista de dados', '"Analista de dados"'], ['Gerente', '"Gerente"']] as const) {
       assert.equal(fullOf([req(label, label === 'Líder' || label === 'Gerente' ? undefined : label, 'title_word')]).text, text);
     }
   });
@@ -348,6 +336,23 @@ describe('peopleSearchUrl', () => {
 
   test('o caso exato', () => {
     assert.equal(peopleSearchUrl('"C#" AND "Go"'), 'https://www.linkedin.com/search/results/people/?keywords=%22C%23%22%20AND%20%22Go%22');
+  });
+});
+
+describe('as buscas dos testes reais (DP-26, DP-30)', () => {
+  const built = (names: readonly string[]) => buildSearch({ requirements: names.map(term), excludedTerms: [] });
+
+  test('6 obrigatórios: a completa, que usava 16 operadores, agora usa 5, e a curta é o texto que trouxe resultados', () => {
+    const search = built(['C#', '.NET', 'ASP.NET', 'Entity Framework', 'SQL Server', 'Git']);
+    assert.equal(search.full.operators, 5);
+    assert.equal(search.short.text, '"C#" AND ".NET" AND "ASP.NET"');
+    assert.equal(search.short.operators, 2);
+  });
+
+  test('4 obrigatórios: a completa, que usava 11 operadores, agora usa 3, e a curta não muda', () => {
+    const search = built(['C#', '.NET', 'ASP.NET', 'Git']);
+    assert.equal(search.full.operators, 3);
+    assert.equal(search.short.text, '"C#" AND ".NET" AND "ASP.NET"');
   });
 });
 

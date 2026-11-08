@@ -11,16 +11,16 @@ import type { Controller } from './app.ts';
 import { BAND_NAMES, NOTE_TEXTS, RESULT, SECTION_NAMES, STAGE_NAMES, STATUS_NAMES, TOP } from './strings.ts';
 
 /** Nota e faixa juntas. A faixa vem sempre escrita: a cor sozinha nunca diz nada. */
-export function ScoreBadge(props: { scored: boolean; score: number; band: Band; compact?: boolean }): HTMLElement {
+export function ScoreBadge(props: { scored: boolean; score: number; band: Band; preview?: boolean; compact?: boolean }): HTMLElement {
   if (!props.scored) {
     return h('span', { class: ['tr-score', 'tr-score--none', props.compact && 'tr-score--compact'] }, h('span', { class: 'tr-score__num' }, RESULT.noScore));
   }
   return h(
     'span',
-    { class: ['tr-score', `tr-score--${props.band}`, props.compact && 'tr-score--compact'] },
+    { class: ['tr-score', props.preview === true ? 'tr-score--none' : `tr-score--${props.band}`, props.compact && 'tr-score--compact'] },
     h('span', { class: 'tr-visually-hidden' }, `${RESULT.scoreLabel}: `),
     h('span', { class: 'tr-score__num' }, String(props.score)),
-    h('span', { class: 'tr-score__band' }, BAND_NAMES[props.band]),
+    h('span', { class: 'tr-score__band' }, props.preview === true ? RESULT.previewLabel : BAND_NAMES[props.band]),
   );
 }
 
@@ -49,7 +49,7 @@ export function PersonItem(row: PersonRow, ctl: Controller): HTMLElement {
       { class: 'tr-person__top' },
       h('span', { class: 'tr-person__rank' }, `${row.position}º`),
       name,
-      ScoreBadge({ scored: row.scored, score: row.score, band: row.band, compact: true }),
+      ScoreBadge({ scored: row.scored, score: row.score, band: row.band, preview: row.preview, compact: true }),
       Button({ label: TOP.seeDetailShort, ariaLabel: TOP.seeDetailNamed(row.name), variant: 'quiet', focusKey: `person:${row.id}`, onClick: () => ctl.run({ id: 'show_detail', candidateId: row.id }) }),
     ),
     h(
@@ -71,13 +71,14 @@ function evidenceText(section: ProfileSection, term: string, jobTitles: readonly
 }
 
 function RequirementItem(line: RequirementLine): HTMLElement {
+  const notSeen = line.note === 'not_in_listing';
   return h(
     'li',
     { class: 'tr-req', 'data-requirement-status': line.status },
     h('div', { class: 'tr-req__head' }, h('span', { class: 'tr-req__label' }, line.label), h('span', { class: 'tr-req__importance' }, line.importance === 'required' ? RESULT.required : RESULT.preferred)),
-    StatusPill({ status: STATUS_PILL[line.status], label: STATUS_NAMES[line.status] }),
+    StatusPill({ status: notSeen ? 'neutral' : STATUS_PILL[line.status], label: notSeen ? RESULT.notSeen : STATUS_NAMES[line.status] }),
     line.note === null ? null : h('p', { class: 'tr-req__note' }, NOTE_TEXTS[line.note]),
-    line.status === 'needs_reanalysis' ? h('p', { class: 'tr-req__note' }, RESULT.reanalysisHelp) : null,
+    line.status === 'needs_reanalysis' && !notSeen ? h('p', { class: 'tr-req__note' }, RESULT.reanalysisHelp) : null,
     line.evidence.length === 0
       ? null
       : h('ul', { class: 'tr-req__evidence', 'aria-label': RESULT.evidenceLabel }, line.evidence.map((item) => h('li', null, evidenceText(item.section, item.term, item.jobTitles, item.months)))),
@@ -90,6 +91,7 @@ export function RequirementList(lines: readonly RequirementLine[]): HTMLElement 
 
 /** Aviso de leitura incompleta, com o que faltou e como completar (RF-35). Nulo quando a leitura veio boa. */
 export function ReadNoticeView(notice: ReadNotice): HTMLElement | null {
+  if (notice.level === 'listing') return Notice({ tone: 'info', title: RESULT.previewTitle, text: RESULT.previewText, class: 'tr-read-notice' });
   if (notice.level === 'ok' && !notice.truncated) return null;
   const facts: Child[] = [];
   if (notice.level === 'empty') facts.push(h('p', { class: 'tr-notice__text' }, RESULT.readEmpty));

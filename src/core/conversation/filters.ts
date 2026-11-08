@@ -3,7 +3,7 @@
 import type { Band, Candidate, Job, Stage } from '../model.ts';
 import { canonicalOf } from '../dictionary/index.ts';
 import { BAND_LABELS, STAGE_LABELS } from '../report/model.ts';
-import { isScored } from '../match/score.ts';
+import { isListingOnly, isScored } from '../match/score.ts';
 import { normalize } from '../text/normalize.ts';
 
 export interface CandidateFilters {
@@ -47,7 +47,8 @@ export function matchesFilters(candidate: Candidate, job: Job, filters: Candidat
     const months = candidate.card.totalMonths;
     if (months === null || months < filters.minYears * MONTHS_PER_YEAR) return false;
   }
-  if (filters.band !== 'any' && !(isScored(candidate.match) && candidate.match.band === filters.band)) return false;
+  // Pré-nota não tem faixa: filtrar por faixa só mostra quem tem nota completa (RF-39).
+  if (filters.band !== 'any' && !(isScored(candidate.match) && !isListingOnly(candidate.card) && candidate.match.band === filters.band)) return false;
   if (filters.stage !== 'any' && candidate.stage !== filters.stage) return false;
   if (filters.favoriteOnly && !candidate.favorite) return false;
   if (filters.allRequired && !meetsAllRequired(candidate, job)) return false;

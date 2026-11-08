@@ -4,7 +4,8 @@
 import { buildConversation, HOME, TERMS_VERSION } from '../core/conversation/build.ts';
 import type { Action, ConversationMessage, Step } from '../core/conversation/build.ts';
 import { reconcileMemory, recomputeMatches } from '../core/conversation/analyze-store.ts';
-import type { AnalyzeInput, AnalyzeOutcome, TextMemory } from '../core/conversation/analyze-store.ts';
+import type { AnalyzeInput, AnalyzeOutcome, ListingOutcome, TextMemory } from '../core/conversation/analyze-store.ts';
+import type { RawResult } from '../core/results/parse.ts';
 import { NO_FILTERS } from '../core/conversation/filters.ts';
 import type { CandidateFilters } from '../core/conversation/filters.ts';
 import { DEFAULT_REPORT_CHOICE } from '../core/conversation/triage.ts';
@@ -56,7 +57,8 @@ export interface UiState {
   drafts: Record<string, string>;
   /** Erro por id de campo ou de requisito. */
   errors: Record<string, string>;
-  searchVersion: SearchVersion;
+  /** Nulo até a pessoa escolher: a tela começa na versão curta (DP-26). */
+  searchVersion: SearchVersion | null;
   copyStatus: CopyStatus;
   settingsSaved: boolean;
   banner: string | null;
@@ -103,6 +105,7 @@ export interface Controller {
   setCopyStatus(status: CopyStatus): void;
   /** Analisa e guarda o perfil sem outro clique (RF-36). A leitura por clique chama isto com source 'clicked'. */
   analyzeAndStore(input: AnalyzeInput): Promise<AnalyzeOutcome>;
+  analyzeResults(items: readonly RawResult[]): Promise<ListingOutcome>;
   submitPaste(values: Record<string, string>): Promise<void>;
   saveCandidateDetails(candidateId: string, values: Record<string, string>): Promise<void>;
   setFilters(values: Record<string, string>): void;
@@ -159,7 +162,7 @@ export function createController(deps: ControllerDeps): { controller: Controller
     suggestion: null,
     drafts: {},
     errors: {},
-    searchVersion: 'full',
+    searchVersion: null,
     copyStatus: null,
     settingsSaved: false,
     banner: null,
@@ -433,6 +436,8 @@ export function createController(deps: ControllerDeps): { controller: Controller
         ui.analysis = null;
         return go(HOME);
       case 'open_requirements':
+        // Vaga com texto e sem nenhum requisito: as sugestões voltam, em vez de uma tela vazia.
+        if (data.activeJob !== null && data.activeJob.requirements.length === 0) startSuggestion(data.activeJob);
         return go({ name: 'requirements' });
       case 'open_search':
         return go({ name: 'search' });
@@ -632,6 +637,7 @@ export function createController(deps: ControllerDeps): { controller: Controller
       redraw();
     },
     analyzeAndStore: triage.analyzeAndStore,
+    analyzeResults: triage.analyzeResults,
     submitPaste: triage.submitPaste,
     saveCandidateDetails: triage.saveDetails,
     setFilters: triage.setFilters,

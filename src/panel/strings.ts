@@ -110,7 +110,7 @@ export const HOME = {
   summaryCounts: (required: number, preferred: number, excluded: number): string =>
     `${plural(required, 'obrigatório', 'obrigatórios')}, ${plural(preferred, 'desejável', 'desejáveis')} e ${plural(excluded, 'termo excluído', 'termos excluídos')}.`,
   nextRequirements: 'Próximo passo: cadastrar os requisitos, colando o texto da vaga.',
-  nextSearch: 'Próximo passo: colar o perfil de uma pessoa para analisar. Quem for analisado entra na lista sozinho.',
+  nextSearch: 'Próximo passo: monte a busca e, na página de resultados do LinkedIn, use o botão direito ou o atalho Alt+Shift+T. Quem for analisado entra na lista sozinho.',
 };
 
 export const JOBS = {
@@ -193,7 +193,7 @@ export const SEARCH = {
   title: 'Busca para o LinkedIn',
   intro: 'A Triagem+ só monta o texto. Quem busca e navega é você.',
   versionLabel: 'Versão da busca',
-  full: 'Completa',
+  full: 'Completa (todos os obrigatórios)',
   short: 'Curta (até 3 obrigatórios)',
   textLabel: 'Texto da busca',
   operators: (n: number): string => `Esta versão usa ${plural(n, 'operador', 'operadores')} (AND, OR e NOT).`,
@@ -202,6 +202,8 @@ export const SEARCH = {
   limitSales: (n: number): string => `Sales Navigator: até ${n} operadores por busca.`,
   limitRecruiter: 'Recruiter e Recruiter Lite: sem limite de operadores.',
   overSales: (n: number): string => `Esta versão passa de ${n} operadores. No Sales Navigator, use a versão curta.`,
+  startedShort: 'Começamos pela versão curta, que acha mais gente: ela procura até 3 obrigatórios, sem termos excluídos. A completa procura todos os obrigatórios. O que ficar fora da busca continua contando na nota.',
+  noResults: 'Se o LinkedIn disser “Nenhum resultado”, a busca pode estar longa ou exigente demais. Use a versão curta.',
   monthlyLimit: 'Contas gratuitas que o LinkedIn vê como uso comercial, como recrutar, têm um limite mensal de buscas. A Triagem+ não tem como contornar esse limite.',
   copy: 'Copiar',
   copied: 'Busca copiada.',
@@ -209,6 +211,9 @@ export const SEARCH = {
   open: 'Abrir no LinkedIn',
   openHelp: 'Abre a busca de pessoas em uma aba nova, só com o texto da busca. Nada é lido da página.',
   empty: 'Ainda não há obrigatórios de tecnologia, idioma, certificado ou cargo para montar a busca.',
+  emptyNone: 'Esta vaga ainda não tem requisitos guardados. Clique em Requisitos e depois em Usar os marcados.',
+  emptyOnlyPreferred: 'Todos os requisitos desta vaga estão como Desejável, e a busca usa só os Obrigatórios. Em Requisitos, mude pelo menos um para Obrigatório.',
+  emptyOnlyTime: 'Os obrigatórios desta vaga são só de tempo de experiência, que não entra na busca. Em Requisitos, marque uma tecnologia como Obrigatório.',
   refusedTitle: 'Ficaram de fora da busca',
   refusedTerm: (term: string, reason: string): string => `“${term}”: ${reason}`,
 };
@@ -258,6 +263,7 @@ export const SECTION_NAMES: Readonly<Record<ProfileSection, string>> = {
   certifications: 'Licenças e certificados',
   languages: 'Idiomas',
   projects: 'Projetos',
+  listing: 'Lista de resultados',
 };
 
 export const STATUS_NAMES: Readonly<Record<RequirementStatus, string>> = {
@@ -268,9 +274,10 @@ export const STATUS_NAMES: Readonly<Record<RequirementStatus, string>> = {
 };
 
 export const NOTE_TEXTS: Readonly<Record<ResultNote, string>> = {
-  mentioned_only: 'O termo só aparece em Sobre ou Projetos. Está citado, mas sem prova de uso.',
+  mentioned_only: 'O termo só aparece em Sobre, em Projetos ou na lista de resultados. Está citado, mas sem prova de uso.',
   time_not_measurable: 'O termo aparece, mas não deu para medir o tempo. Confira no perfil.',
   check_profile: 'Não achamos datas legíveis no perfil. Confira o tempo de experiência por lá.',
+  not_in_listing: 'A lista de resultados não mostrou isto. Pode estar no perfil.',
 };
 
 export const PASTE = {
@@ -310,6 +317,10 @@ export const PASTE_ERRORS = {
 export const RESULT = {
   title: (name: string): string => `Análise: ${name}`,
   scoreLabel: 'Nota',
+  previewLabel: 'Pré-nota',
+  notSeen: 'Não visto na lista',
+  previewTitle: 'Esta é uma pré-nota',
+  previewText: 'Ela usa só o que a lista de resultados mostra: o título e o trecho da pessoa. Para a nota completa, abra o perfil e use o botão direito ou o atalho Alt+Shift+T.',
   noScore: 'Sem nota',
   noScoreText: 'Os requisitos desta vaga ainda precisam ser conferidos no perfil. Enquanto isso, não há nota.',
   requiredCount: (met: number, total: number): string => `Obrigatórios que bateram: ${met} de ${total}.`,
@@ -345,6 +356,7 @@ export const TOP = {
   enteredOut: (name: string, position: number, total: number): string => `${name} ficou fora dos 10: está em ${position}º, entre ${total}.`,
   notInformed: 'Não informado',
   notInformedHelp: 'O selo “Não informado” marca quem ainda não recebeu o aviso de privacidade.',
+  previewHelp: 'Pré-nota usa só o que a lista de resultados mostra. Para a nota completa, abra o perfil e use o botão direito ou o atalho Alt+Shift+T.',
   noTitle: 'Cargo não identificado',
   noScore: 'Sem nota',
   favorite: 'Favorito',

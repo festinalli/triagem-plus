@@ -27,6 +27,7 @@
     "type": "module"
   },
   "permissions": ["storage", "sidePanel", "activeTab", "scripting", "contextMenus"],
+  "optional_host_permissions": ["https://www.linkedin.com/*"],
   "commands": {
     "analyze-profile": {
       "suggested_key": {

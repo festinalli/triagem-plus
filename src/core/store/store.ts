@@ -114,10 +114,10 @@ function isStrArray(v: unknown): v is string[] {
   return Array.isArray(v) && v.every(isStr);
 }
 
-const SECTIONS = ['about', 'experience', 'skills', 'certifications', 'languages', 'projects'];
+const SECTIONS = ['about', 'experience', 'skills', 'certifications', 'languages', 'projects', 'listing'];
 const BANDS = ['strong', 'partial', 'weak'];
 const STATUSES = ['met', 'partial', 'not_found', 'needs_reanalysis'];
-const NOTES = ['mentioned_only', 'time_not_measurable', 'check_profile'];
+const NOTES = ['mentioned_only', 'time_not_measurable', 'check_profile', 'not_in_listing'];
 const KINDS = ['term', 'total_experience', 'language', 'certification', 'title_word'];
 const IMPORTANCES = ['required', 'preferred'];
 
@@ -209,7 +209,7 @@ function pickCandidate(v: unknown): Candidate | null {
   if (!isObj(v)) return null;
   if (!isStr(v['id']) || v['id'] === '' || !isStr(v['jobId']) || !isStr(v['name']) || !isStr(v['profileUrl'])) return null;
   if (!isStrOrNull(v['profileKey']) || !oneOf(STAGES, v['stage']) || !isBool(v['favorite']) || !isStr(v['notes'])) return null;
-  if (!isNumOrNull(v['informedAt']) || !oneOf(['pasted', 'clicked'], v['source']) || !isNum(v['addedAt']) || !isNum(v['updatedAt'])) {
+  if (!isNumOrNull(v['informedAt']) || !oneOf(['pasted', 'clicked', 'results'], v['source']) || !isNum(v['addedAt']) || !isNum(v['updatedAt'])) {
     return null;
   }
   const card = pickCard(v['card']);

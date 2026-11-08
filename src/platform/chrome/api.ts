@@ -1,5 +1,5 @@
 // O `chrome` global, restrito às APIs que a extensão usa.
-export type ChromeApi = Pick<typeof chrome, 'runtime' | 'tabs' | 'scripting' | 'sidePanel' | 'contextMenus' | 'action' | 'storage' | 'commands' | 'windows'>;
+export type ChromeApi = Pick<typeof chrome, 'runtime' | 'tabs' | 'scripting' | 'sidePanel' | 'contextMenus' | 'action' | 'storage' | 'commands' | 'windows' | 'permissions'>;
 
 /** O `chrome` do contexto atual; lança se não existir. */
 export function globalChrome(): ChromeApi {

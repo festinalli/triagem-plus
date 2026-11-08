@@ -13,12 +13,13 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { scanDistFolder } from './check-secrets.mjs';
 
 export const EXPECTED_PERMISSIONS = ['activeTab', 'contextMenus', 'scripting', 'sidePanel', 'storage'];
+export const EXPECTED_OPTIONAL_HOSTS = ['https://www.linkedin.com/*'];
 const MAX_BYTES = 1024 * 1024;
 // Marcas do caminho de prova (item de menu em qualquer página e tela de prova da leitura): nenhuma pode aparecer no JavaScript da produção.
-const PROOF_MARKERS = ['Analisar esta página', 'proof-preview', 'proof-origin'];
-// Marcas do gesto (F09): existem nos dois pacotes. Na produção, o item de menu é só para perfil do LinkedIn.
+const PROOF_MARKERS = ['Provar a leitura', 'http://*/*', 'proof-preview', 'proof-origin'];
+// Marcas do gesto (F09): existem nos dois pacotes. Na produção, os itens de menu são só para perfil e resultados de pessoas do LinkedIn.
 const GESTURE_MARKERS = ['contextMenus.onClicked', 'commands.onCommand', 'executeScript', 'pendingRead'];
-const PRODUCTION_MARKERS = ['Analisar este perfil com a Triagem+', 'https://www.linkedin.com/in/*'];
+const PRODUCTION_MARKERS = ['Analisar este perfil com a Triagem+', 'https://www.linkedin.com/in/*', 'Analisar esta página com a Triagem+', 'https://www.linkedin.com/search/results/people*'];
 
 function walk(dir) {
   return fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) => {
@@ -41,9 +42,12 @@ export function verifyDist(dir, { proof = false } = {}) {
 
   const perms = [...(manifest.permissions ?? [])].sort();
   if (JSON.stringify(perms) !== JSON.stringify(EXPECTED_PERMISSIONS)) errors.push(`permissões fora do esperado: ${perms.join(', ')}`);
-  for (const key of ['host_permissions', 'optional_host_permissions', 'content_scripts', 'web_accessible_resources', 'optional_permissions']) {
+  for (const key of ['host_permissions', 'content_scripts', 'web_accessible_resources', 'optional_permissions']) {
     if (manifest[key] !== undefined) errors.push(`manifesto não pode ter ${key}`);
   }
+  // A única permissão de site é opcional e só do LinkedIn, pedida pelo botão Ler esta página (D-10).
+  const optionalHosts = JSON.stringify(manifest.optional_host_permissions ?? null);
+  if (optionalHosts !== JSON.stringify(EXPECTED_OPTIONAL_HOSTS)) errors.push(`permissão opcional de site fora do esperado: ${optionalHosts}`);
   if (!String(manifest.content_security_policy?.extension_pages ?? '').includes("connect-src 'none'")) errors.push("CSP sem connect-src 'none'");
 
   const paths = [manifest.background?.service_worker, manifest.side_panel?.default_path, ...Object.values(manifest.icons ?? {}), ...Object.values(manifest.action?.default_icon ?? {})];

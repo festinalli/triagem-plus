@@ -26,7 +26,7 @@ export const CandidateDetailView: MessageView<'candidate_detail'> = (message, ct
       h(
         'div',
         { class: 'tr-result__score' },
-        ScoreBadge({ scored: message.scored, score: message.score, band: message.band }),
+        ScoreBadge({ scored: message.scored, score: message.score, band: message.band, preview: message.preview }),
         h('p', { class: 'tr-text tr-text--muted' }, DETAIL.position(message.position, message.total)),
       ),
       ProfileLink({ link: message.link, text: message.linkText }),

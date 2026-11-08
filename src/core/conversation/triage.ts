@@ -3,7 +3,7 @@
 // A conversa não é guardada (RF-69): tudo aqui sai da lista de candidatos que o painel leu e do passo atual.
 import type { Band, Candidate, Evidence, Importance, Job, ProfileSection, RequirementStatus, ResultNote, Stage } from '../model.ts';
 import { positionOf, sortCandidates, topTen } from '../match/rank.ts';
-import { isScored } from '../match/score.ts';
+import { isListingOnly, isScored } from '../match/score.ts';
 import { findForbidden } from '../guard/index.ts';
 import { fillTemplate, missingMarkers, resolveTemplates } from '../messages/templates.ts';
 import type { Marker, TemplateId } from '../messages/templates.ts';
@@ -63,7 +63,7 @@ export interface RequirementLine {
 
 /** Leitura incompleta (RF-35): o que faltou ler. */
 export interface ReadNotice {
-  readonly level: 'ok' | 'few_sections' | 'empty';
+  readonly level: 'ok' | 'few_sections' | 'empty' | 'listing';
   readonly truncated: boolean;
   readonly missing: readonly ProfileSection[];
 }
@@ -79,6 +79,8 @@ export interface PersonRow {
   readonly scored: boolean;
   readonly score: number;
   readonly band: Band;
+  /** Só foi vista na página de resultados: pré-nota, sem faixa (RF-39). */
+  readonly preview: boolean;
   readonly stage: Stage;
   readonly currentTitle: string | null;
   /** Ainda sem "informado em": selo "não informado" (RF-82). */
@@ -115,6 +117,7 @@ export interface AnalysisResultMessage extends Base {
   readonly scored: boolean;
   readonly score: number;
   readonly band: Band;
+  readonly preview: boolean;
   readonly requiredMet: number;
   readonly requiredTotal: number;
   readonly updated: boolean;
@@ -161,6 +164,7 @@ export interface CandidateDetailMessage extends Base {
   readonly scored: boolean;
   readonly score: number;
   readonly band: Band;
+  readonly preview: boolean;
   readonly requiredMet: number;
   readonly requiredTotal: number;
   readonly position: number;
@@ -242,6 +246,7 @@ export function requirementLines(candidate: Candidate, job: Job): RequirementLin
 
 /** Leitura incompleta (RF-35). Só as seções essenciais geram aviso: as outras podem não existir no perfil. */
 export function readNoticeOf(candidate: Candidate): ReadNotice {
+  if (isListingOnly(candidate.card)) return { level: 'listing', truncated: false, missing: [] };
   const read = candidate.card.sectionsRead;
   const missing = ESSENTIAL_SECTIONS.filter((section) => !read.includes(section));
   const level = read.length === 0 ? 'empty' : missing.length > 0 ? 'few_sections' : 'ok';
@@ -259,6 +264,7 @@ function rowOf(candidate: Candidate, position: number, input: ConversationInput)
     scored: isScored(candidate.match),
     score: candidate.match.score,
     band: candidate.match.band,
+    preview: isListingOnly(candidate.card),
     stage: candidate.stage,
     currentTitle: candidate.card.currentTitle,
     notInformed: candidate.informedAt === null,
@@ -315,6 +321,7 @@ export function analysisMessage(input: ConversationInput): AnalysisResultMessage
     scored: isScored(candidate.match),
     score: candidate.match.score,
     band: candidate.match.band,
+    preview: isListingOnly(candidate.card),
     requiredMet: candidate.match.requiredMet,
     requiredTotal: candidate.match.requiredTotal,
     updated: analysis.updated,
@@ -411,6 +418,7 @@ const detailRule: ConversationRule = (input, step) => {
       scored: isScored(candidate.match),
       score: candidate.match.score,
       band: candidate.match.band,
+      preview: isListingOnly(candidate.card),
       requiredMet: candidate.match.requiredMet,
       requiredTotal: candidate.match.requiredTotal,
       position: positionOf(list, candidate.id) ?? 0,

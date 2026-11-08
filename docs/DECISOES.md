@@ -49,6 +49,7 @@ Valem desde o início e não dependem de escopo.
 - **Status:** decidida pelo dono.
 - **Decisão:** instalação a partir da pasta. Sem GitHub e sem loja nesta versão. Publicar é uma decisão futura, depois de revisão jurídica.
 - **Consequência:** sem atualização automática e sem exigências de loja por enquanto. Sem licença pública por ora.
+- **Mudança de 2026-11-07:** a D-12 abriu o código no GitHub, com licença Apache-2.0. A loja do Chrome continua fora.
 
 ### D-05. Sem IA
 
@@ -59,7 +60,7 @@ Valem desde o início e não dependem de escopo.
 
 ### D-06. Entrada: um perfil por vez
 
-- **Status:** decidida pelo dono.
+- **Status:** substituída por D-09. A leitura de um perfil por vez continua existindo, para a nota completa.
 - **Contexto:** foram apresentados três caminhos: um por vez; leitura em lote da página de resultados; percorrer tudo sozinha. O segundo traz pouca informação e é cópia em lote. O terceiro é o caso mais claro de proibição do LinkedIn.
 - **Decisão:** um por vez, abrindo o perfil e clicando, ou colando o texto.
 - **Consequência:** 10 devs custam 10 gestos. Risco menor, sem chegar a zero, porque a regra do LinkedIn não traz exceção para o clique (R-01).
@@ -75,6 +76,34 @@ Valem desde o início e não dependem de escopo.
 - **Contexto:** o dono pediu lista automática, PDF e os 10 primeiros no "chat da extensão". Foram apresentadas as leituras possíveis: automática depois de analisar, ler a página de resultados ou a extensão buscar sozinha; e, para o chat, conversa com botões, lista comum ou chat com IA.
 - **Decisão:** automática depois de analisar: a pessoa analisa um perfil por vez, e a lista, a ordem e os 10 primeiros se atualizam sozinhos. O PDF sai com um clique. O painel tem forma de conversa com botões, sem IA.
 - **Consequência:** D-05 e D-06 continuam valendo. RF-36 mudou, e RF-37, RF-66 a RF-69 e RF-75 são novos.
+
+### D-09. Entrada também pela página de resultados
+
+- **Status:** decidida pelo dono em 2026-11-06, depois de usar a extensão no LinkedIn real.
+- **Contexto:** analisar um perfil por vez foi trabalhoso demais. O dono pediu para analisar de 10 em 10 ou de 20 em 20. Foram apresentados dois caminhos: ler a página de resultados aberta, com pré-nota, ou a extensão abrir cada perfil sozinha, com nota completa e risco alto para a conta.
+- **Decisão:** ler a página de resultados aberta, por um gesto, uma página por vez. A extensão continua sem abrir, rolar ou trocar de página.
+- **Consequência:** a pré-nota usa só o título e o trecho que a lista mostra, sem tempo de experiência. A regra do LinkedIn continua sem exceção, e isso é mais perto de cópia em lote do que um perfil por vez (R-01). Juntam-se dados de mais pessoas, e por isso o aviso foi refeito e o aceite é pedido de novo.
+
+### D-10. Botão Ler esta página no painel
+
+- **Status:** decidida pelo dono em 2026-11-07.
+- **Contexto:** no teste real, o dono não achou a leitura da página: ela estava desligada em Ajustes e só funcionava pelo botão direito ou pelo atalho. Ele voltou a colar perfil por perfil. O Chrome só deixa a extensão ler a aba sem permissão de site quando o pedido vem do botão direito, do atalho ou do ícone. Um botão no painel precisa de permissão de site. Foram apresentados dois caminhos: o botão no painel, com essa permissão, ou ligar a leitura direto na tela da busca, sem permissão nova.
+- **Decisão:** botão Ler esta página no painel, na tela da busca e na lista. A permissão é opcional e só de `https://www.linkedin.com/*`. O Chrome a pede no primeiro clique, e a pessoa pode tirá-la. O aviso da leitura por clique continua valendo para o botão, e a tela da busca liga a leitura ali mesmo. O gesto continua funcionando.
+- **Consequência:** o aviso do Chrome fala em "ler e alterar" dados do LinkedIn, embora a Triagem+ só leia, e só no clique. Continua uma página por clique, sem passar de página nem abrir perfis sozinha (RF-23, R-01). A regra RNF-02 passou a aceitar essa única permissão opcional. Isso pesa numa publicação na loja, que hoje não está nos planos.
+
+### D-11. Botão Próximo perfil
+
+- **Status:** decidida pelo dono em 2026-11-07, depois de ver o PDF de uma página real.
+- **Contexto:** a leitura da página real trouxe 10 pessoas, e quase todas ficaram com pré-nota 50. A busca já exige os termos obrigatórios, então todo mundo da lista tem os mesmos. A lista também não mostra tempo de experiência, então o termo com anos mínimos vale metade. Com só a lista, não há com o que separar as pessoas. Foram apresentados dois caminhos: um botão que abre e lê um perfil por clique, ou só deixar a pré-nota mais clara.
+- **Decisão:** botão Abrir e ler o próximo perfil, no resultado e na lista. Cada clique abre, numa aba própria, o próximo da lista que só tem pré-nota, espera a página carregar e lê o perfil, como o botão Ler esta página. A pré-nota vira nota completa.
+- **Consequência:** a extensão passa a abrir perfis, mas só um por clique da pessoa, e só links `https://www.linkedin.com/in/<nome>/`. Ela continua sem rolar, clicar na página, passar de página ou seguir sozinha para o próximo perfil (RF-23, RF-33). Se o LinkedIn mostrar o login ou uma verificação no lugar do perfil, nada é lido, e a pessoa resolve na aba. A regra do LinkedIn continua sem exceção para o clique (R-01). Se o LinkedIn só carregar a experiência quando a página é rolada, a nota sai sem ela, e o aviso de leitura incompleta diz o que fazer (RF-35).
+
+### D-12. Código aberto no GitHub
+
+- **Status:** decidida pelo dono em 2026-11-07.
+- **Contexto:** o dono quer divulgar a Triagem+ no LinkedIn para recrutadores. Ainda faltavam a revisão jurídica dos termos do LinkedIn e da privacidade, e a consulta do nome no INPI (R-08). O dono foi lembrado disso e escolheu publicar já.
+- **Decisão:** repositório público no GitHub, com licença Apache-2.0, a mesma da Candidata+. Cada versão sai como um .zip para instalar pela pasta, em modo do desenvolvedor. A loja do Chrome continua fora.
+- **Consequência:** substitui a D-04 na parte do GitHub e da licença. Qualquer pessoa pode ver, usar e mudar o código, mantendo o aviso de autoria. Não há atualização automática: cada pessoa baixa o .zip novo. A revisão jurídica e o INPI continuam pendentes (docs/PRIVACIDADE.md, seção 9).
 
 ## Parte 3: decisões de projeto
 
@@ -244,3 +273,39 @@ Valem desde o início e não dependem de escopo.
 - **Contexto:** Sobre é o texto mais pessoal do perfil, e um termo como "Campinas" ou o nome de uma faculdade passava pela trava e mudava a nota.
 - **Decisão:** em Sobre, só contam termos da lista de tecnologia. Termo livre é procurado em Experiência, Competências, Certificados e Projetos.
 - **Consequência:** tecnologia nova citada só em Sobre aparece como "não encontrado no texto".
+
+### DP-26. A busca começa na versão curta
+
+- **Status:** adotada, revisável.
+- **Contexto:** nos primeiros testes reais, em 2026-11-06, a completa voltou sem resultados e sem erro de formato duas vezes: com 6 obrigatórios e 16 operadores, e com 4 obrigatórios e 11 operadores. Um terceiro teste, com 5 obrigatórios e 14 operadores, deu o mesmo. A curta, com 2 operadores, trouxe resultados. Esses testes ainda não separavam a causa, que a DP-30 separou depois. Um limite de 15 operadores, tentado antes, caiu com o segundo teste.
+- **Decisão:** a tela abre sempre na curta e explica por quê. A pessoa pode trocar, e a escolha vale enquanto o painel estiver aberto. Com a completa marcada, a tela diz o que fazer se vier "Nenhum resultado".
+- **Consequência:** a curta procura até 3 obrigatórios, e os outros só pesam na nota. A forma da completa mudou com os testes seguintes (DP-30).
+
+### DP-30. A busca completa sai sem sinônimos
+
+- **Status:** adotada, revisável.
+- **Contexto:** em 2026-11-07, com a mesma vaga, o teste real separou a causa da busca vazia. Cinco obrigatórios só com AND (4 operadores) trouxeram resultados, e três obrigatórios com um sinônimo cada (5 operadores) também. Os mesmos cinco com dois sinônimos cada (14 operadores) voltaram vazios. Como OR só aumenta o que a busca acha, o zero não veio de exigir demais, e sim do tamanho do texto ou do número de operadores. Os testes não separam esses dois. O limite fica entre 5 e 11 operadores, e o LinkedIn não publica o número.
+- **Decisão:** a completa usa todos os obrigatórios por AND e os excluídos por NOT, sem sinônimos. As duas formas de gênero de um cargo continuam com OR, porque tirar uma deixaria de achar parte das pessoas (RD-8). Sinônimos seguem valendo na nota.
+- **Consequência:** quem escreve só "dotnet" ou "csharp" no perfil pode não aparecer na busca. Vaga com muitos obrigatórios ainda pode passar do limite, e a tela diz para usar a curta. A tela continua abrindo na curta enquanto não houver teste com mais de 5 termos (DP-26).
+
+### DP-27. A pré-nota não vira faixa
+
+- **Status:** adotada, revisável.
+- **Contexto:** a lista mostra pouco. Quem não citou uma tecnologia no título pode usar essa tecnologia todo dia, e "Fraco" seria um julgamento sem base.
+- **Decisão:** a pessoa vista só na lista tem um número e o selo "Pré-nota", sem Forte, Parcial ou Fraco. O que a lista não mostrou aparece como "Não visto na lista", e não como "Não encontrado", na tela e no relatório. O número conta o que foi visto sobre o que dá para ver: tempo de experiência e termo livre ficam fora da conta. Um termo com anos mínimos que aparece na lista conta inteiro e sai como "tempo a conferir", porque a lista nunca mostra tempo.
+- **Consequência:** as pré-notas ordenam a lista com as notas completas na mesma escala, então uma pré-nota alta pode vir antes de uma nota completa. O selo mostra a diferença.
+- **Correção de 2026-11-07:** no teste real, o código contava pela metade o termo com anos mínimos, contra esta decisão. Com anos em todos os termos, a melhor pré-nota ficava perto de 45 e parecia fraca. Agora o termo conta inteiro, e a ordem quase não muda.
+
+### DP-28. Quem não mostrou nada da vaga não é guardado
+
+- **Status:** adotada, revisável.
+- **Contexto:** a página mostra pessoas que a recrutadora nunca escolheu olhar. Guardar nome e link de quem nada tem a ver com a vaga é dado sem finalidade (LGPD, necessidade).
+- **Decisão:** a pessoa só entra na lista se a lista de resultados mostrou ao menos um requisito da vaga. A tela diz quantas ficaram de fora, sem nomes.
+- **Consequência:** quem bate com a vaga, mas não cita nada no título nem no trecho, não entra. Dá para abrir o perfil e analisar por gesto ou colagem. Quem mostrou algo da vaga, mas tem nome que a regra não reconhece, entra como "Nome não lido", com o link: sumir seria pior do que pedir conferência.
+
+### DP-29. Cartão achado pelos links de perfil
+
+- **Status:** adotada, revisável.
+- **Contexto:** nomes de classe do site mudam sem aviso, e o texto copiado da página perde os links. A estrutura real da página de resultados não foi vista: só as telas dela.
+- **Decisão:** a leitura parte dos links de perfil em `main`, sem barra e sem lateral, e sobe até o item de lista da pessoa. Dentro do cartão, as linhas seguem a ordem vista nas telas: nome, grau, título, local e trecho.
+- **Consequência:** se a página real for diferente, a contagem de pessoas sai errada, e o roteiro manda conferir isso primeiro.

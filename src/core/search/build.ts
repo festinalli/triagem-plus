@@ -7,10 +7,8 @@ import { canonicalOf, categoryOf, DEV_DICTIONARY, synonymsOf } from '../dictiona
 import { checkTerm, MAX_TERM_CHARS } from '../guard/index.ts';
 import type { ForbiddenTopic } from '../guard/index.ts';
 import type { Requirement, RequirementKind } from '../model.ts';
-import { normalize } from '../text/normalize.ts';
 import { masculineRole, roleForms, startsWithRoleWord } from './role-gender.ts';
 
-const MAX_SYNONYMS = 2;
 const MAX_SHORT_TERMS = 3;
 const SEARCH_URL = 'https://www.linkedin.com/search/results/people/?keywords=';
 
@@ -24,9 +22,6 @@ const LONE_SURROGATE = /\p{Cs}/gu;
 const SPACES = /[\s\u0085]+/gu;
 // Caractere de controle e invisível não ajudam a achar ninguém. A contrabarra podia escapar a aspa que fecha o termo.
 const UNPRINTABLE = /[\p{Cc}\p{Cf}\\]/gu;
-// Sobre texto já passado por `normalize`: "python 3", "python3", "oauth 2 0".
-const TRAILING_VERSION = /^(.*?) ?\d+(?: \d+)*$/u;
-const ECMASCRIPT_EDITION = /(?:^| )es\d+$/u;
 
 const REASON_TOO_LONG = `Termo com mais de ${MAX_TERM_CHARS} caracteres não entra na busca. Escreva só o termo.`;
 const REASON_SAME_AS_REQUIRED = 'Este termo também está nos requisitos: procurar e excluir o mesmo termo não acha ninguém, então ele ficou fora do NOT.';
@@ -80,35 +75,6 @@ function quoted(term: string): string {
 /** Forma comparável que separa "C" de "C++" e de "C#", que `normalize` deixaria iguais. */
 function identityOf(term: string): string {
   return keyOf(term, DEV_DICTIONARY.protect);
-}
-
-/** "java 17" é versão de "java", porque "java" também é nome do termo. "s3" e "az 900" não são. */
-function isVersionForm(key: string, allKeys: ReadonlySet<string>): boolean {
-  if (ECMASCRIPT_EDITION.test(key)) return true;
-  const stem = TRAILING_VERSION.exec(key)?.[1];
-  return stem !== undefined && stem !== '' && allKeys.has(stem);
-}
-
-/**
- * Até 2 sinônimos, os mais curtos. Fica de fora: forma de versão, o que é igual depois de normalizar, e o que contém o
- * próprio termo. "docker compose" não acha ninguém que "Docker" não ache, e só gastaria operador.
- */
-function usefulSynonyms(group: Group): string[] {
-  const names = synonymsOf(group.head).map(clean);
-  const allKeys = new Set(names.map(normalize));
-  const seen = new Set([normalize(group.head), ...group.forms.map(normalize)]);
-  const headIdentity = ` ${identityOf(group.head)} `;
-  const useful: string[] = [];
-  for (const name of names) {
-    const key = normalize(name);
-    if (key === '' || seen.has(key)) continue;
-    seen.add(key);
-    if (isVersionForm(key, allKeys) || ` ${identityOf(name)} `.includes(headIdentity)) continue;
-    useful.push(name);
-  }
-  return useful
-    .sort((a, b) => a.length - b.length || (a < b ? -1 : a > b ? 1 : 0))
-    .slice(0, MAX_SYNONYMS);
 }
 
 /** Recusa de um termo para a tela, ou null se ele pode ir para o texto. */
@@ -184,27 +150,32 @@ function excludedOf(excludedTerms: readonly unknown[], groups: readonly Group[])
   return { kept, refused };
 }
 
+/** Os grupos ligados por AND. OR só nas duas formas de gênero de um cargo (RD-8). */
+function positiveSearch(groups: readonly Group[]): SearchText {
+  const operators = Math.max(groups.length - 1, 0) + groups.reduce((sum, group) => sum + group.forms.length - 1, 0);
+  return { text: groups.map((group) => alternatives(group.forms)).join(' AND '), operators };
+}
+
 function fullSearch(groups: readonly Group[], excluded: ReadonlyMap<string, string>): SearchText {
   // NOT sozinho pode falhar no LinkedIn: sem nenhum termo positivo, o texto fica vazio (RF-20).
   if (groups.length === 0) return { text: '', operators: 0 };
-  let operators = groups.length - 1 + excluded.size;
-  const parts = groups.map((group) => {
-    const names = [...group.forms, ...usefulSynonyms(group)];
-    operators += names.length - 1;
-    return alternatives(names);
-  });
-  return { text: [parts.join(' AND '), ...[...excluded.values()].map((term) => `NOT ${quoted(term)}`)].join(' '), operators };
+  const positive = positiveSearch(groups);
+  return {
+    text: [positive.text, ...[...excluded.values()].map((term) => `NOT ${quoted(term)}`)].join(' '),
+    operators: positive.operators + excluded.size,
+  };
 }
 
-/** Sem sinônimos nem excluídos, para caber em planos com poucos operadores. O cargo fica com as duas formas assim mesmo. */
+/** Até 3 obrigatórios e sem excluídos: é a versão que acha mais gente. */
 function shortSearch(groups: readonly Group[]): SearchText {
   const terms = groups.filter((group) => group.kind === 'term');
-  const chosen = (terms.length > 0 ? terms : groups).slice(0, MAX_SHORT_TERMS);
-  const operators = Math.max(chosen.length - 1, 0) + chosen.reduce((sum, group) => sum + group.forms.length - 1, 0);
-  return { text: chosen.map((group) => alternatives(group.forms)).join(' AND '), operators };
+  return positiveSearch((terms.length > 0 ? terms : groups).slice(0, MAX_SHORT_TERMS));
 }
 
-/** Obrigatórios por AND, sinônimos por OR e excluídos por NOT. Desejáveis e experiência total não entram (RF-20). */
+/**
+ * Obrigatórios por AND e excluídos por NOT. Desejáveis e experiência total não entram (RF-20). Sinônimos não entram no texto:
+ * a busca longa volta sem resultados no LinkedIn (DP-30). Eles continuam valendo na nota.
+ */
 export function buildSearch(input: BuildSearchInput): BuiltSearch {
   const requirements = Array.isArray(input?.requirements) ? input.requirements : [];
   const excludedTerms = Array.isArray(input?.excludedTerms) ? input.excludedTerms : [];

@@ -12,11 +12,19 @@ import { getSession, onSessionChanged, removeSession } from '../platform/chrome/
 import type { Controller } from './app.ts';
 import { CLICK_MESSAGES } from './click-strings.ts';
 
+function isRawResult(value: unknown): boolean {
+  if (typeof value !== 'object' || value === null) return false;
+  const v = value as Record<string, unknown>;
+  return typeof v['href'] === 'string' && typeof v['name'] === 'string' && typeof v['text'] === 'string';
+}
+
 export function isPendingRead(value: unknown): value is PendingRead {
   if (typeof value !== 'object' || value === null) return false;
   const v = value as Record<string, unknown>;
   if (v['ok'] === false) return typeof v['error'] === 'string';
   if (v['ok'] !== true) return false;
+  const results = v['results'] as Record<string, unknown> | null | undefined;
+  if (typeof results === 'object' && results !== null) return typeof results['url'] === 'string' && Array.isArray(results['items']) && results['items'].every(isRawResult);
   const read = v['read'] as Record<string, unknown> | null | undefined;
   return typeof read === 'object' && read !== null && typeof read['text'] === 'string' && typeof read['url'] === 'string' && typeof read['title'] === 'string';
 }
@@ -33,32 +41,46 @@ const FAILURE_TEXT: Readonly<Record<AnalyzeFailure, string>> = {
 };
 
 /** Mostra o motivo na conversa, voltando ao início. A conversa já orienta (sem vaga, sem requisitos, sem aceite). */
-function say(ctl: Controller, text: string): void {
+export function say(ctl: Controller, text: string): void {
   ctl.go(HOME);
   ctl.ui.banner = text;
   ctl.redraw();
 }
 
-/** O nome do leitor tem prioridade; sem ele, o título da aba; sem ele, a conversa pede o nome (o texto fica só no rascunho da tela). */
-async function analyzeRead(ctl: Controller, read: PageRead): Promise<void> {
-  const base = { text: read.text, url: read.url, source: 'clicked' as const };
+/**
+ * O nome do leitor tem prioridade; sem ele, o título da aba; sem ele, a conversa pede o nome (o texto fica só no rascunho da tela).
+ * `candidateId`: a pessoa da lista que o botão Próximo perfil abriu (D-11), para somar a ela mesmo se o link mudou. Verdadeiro
+ * quando a pessoa foi guardada.
+ */
+export async function analyzeRead(ctl: Controller, read: PageRead, candidateId?: string): Promise<boolean> {
+  const base = { text: read.text, url: read.url, source: 'clicked' as const, ...(candidateId === undefined ? {} : { candidateId }) };
   let outcome: AnalyzeOutcome = await ctl.analyzeAndStore({ ...base, name: null });
   if (!outcome.ok && outcome.reason === 'no_name') {
     const fromTitle = nameFromTitle(read.title);
     if (fromTitle !== '') outcome = await ctl.analyzeAndStore({ ...base, name: fromTitle });
   }
-  if (outcome.ok) return;
+  if (outcome.ok) return true;
   if (outcome.reason === 'no_name') {
     ctl.go({ name: 'paste' });
     ctl.ui.drafts = { text: read.text, url: read.url, name: '' };
     ctl.ui.errors = { name: CLICK_MESSAGES.noName };
-    return ctl.redraw({ focusError: true });
+    ctl.redraw({ focusError: true });
+    return false;
   }
   say(ctl, FAILURE_TEXT[outcome.reason]);
+  return false;
 }
 
 export async function handlePending(ctl: Controller, value: PendingRead): Promise<void> {
   if (!value.ok) return say(ctl, value.error);
+  if ('results' in value) {
+    const outcome = await ctl.analyzeResults(value.results.items);
+    if (!outcome.ok) {
+      const text = outcome.reason === 'nothing_read' ? CLICK_MESSAGES.noPeople : outcome.reason === 'no_listing_requirement' ? CLICK_MESSAGES.noListingRequirement : FAILURE_TEXT[outcome.reason];
+      say(ctl, text);
+    }
+    return;
+  }
   await analyzeRead(ctl, value.read);
 }
 

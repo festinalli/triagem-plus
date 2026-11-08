@@ -96,6 +96,8 @@ describe('F10b: modelos de mensagem (RF-80 a RF-82)', { timeout: 300_000 }, () =
     ]);
     const { page, errors } = await openPanel(h);
     const badges = (): Promise<number> => page.locator('[data-kind="top_ten"] .tr-pill', { hasText: 'Não informado' }).count();
+    // Espera a lista desenhar: logo depois de abrir, o painel ainda pode estar vazio.
+    await page.locator('[data-kind="top_ten"] .tr-pill', { hasText: 'Não informado' }).nth(1).waitFor();
     assert.equal(await badges(), 2);
     await page.locator('li.tr-person', { hasText: ANA.name }).getByRole('button', { name: 'Ver detalhe' }).click();
     await page.getByRole('button', { name: 'Copiar', exact: true }).click();

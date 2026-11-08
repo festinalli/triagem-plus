@@ -76,7 +76,7 @@ function RecordFacts(record: StoredRecord): HTMLElement {
       FactRow(RECORD.favorite, record.favorite ? RECORD.yes : RECORD.no),
       FactRow(RECORD.notes, record.notes.trim() === '' ? RECORD.noNotes : h('span', { class: 'tr-facts__notes' }, record.notes)),
       FactRow(RECORD.informed, record.informedAt === null ? RECORD.notInformed : dateText(record.informedAt)),
-      FactRow(RECORD.source, record.source === 'clicked' ? RECORD.clicked : RECORD.pasted),
+      FactRow(RECORD.source, record.source === 'results' ? RECORD.results : record.source === 'clicked' ? RECORD.clicked : RECORD.pasted),
       FactRow(RECORD.added, dateText(record.addedAt)),
       FactRow(RECORD.updated, dateText(record.updatedAt)),
       FactRow(RECORD.keepUntil, record.expiresAt < Date.now() ? RECORD.expiredNote : dateText(record.expiresAt)),

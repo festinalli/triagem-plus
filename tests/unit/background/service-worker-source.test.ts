@@ -28,15 +28,17 @@ describe('service worker', () => {
   });
 
   test('lê uma vez, sem repetir, e só a aba do gesto', () => {
-    assert.equal((worker.match(/runInTab[<(]/gu) ?? []).length, 1);
+    // Uma leitura por tipo de página: perfil e resultados (RF-38).
+    assert.equal((worker.match(/runInTab[<(]/gu) ?? []).length, 2);
     for (const word of ['setTimeout', 'setInterval', 'fetch(', 'XMLHttpRequest', 'tabs.query', 'tabs.update', 'tabs.create', 'alarms', 'allFrames', 'webNavigation']) {
       assert.ok(!worker.includes(word), word);
     }
     assert.ok(!read('platform/chrome/scripting.ts').includes('allFrames'));
   });
 
-  test('o item do menu de produção é só para perfil, e o gesto confere o endereço', () => {
+  test('os itens do menu de produção são só para perfil e resultados de pessoas, e o gesto confere o endereço', () => {
     assert.ok(worker.includes("patterns: ['https://www.linkedin.com/in/*']"));
+    assert.ok(worker.includes("patterns: ['https://www.linkedin.com/search/results/people*']"));
     assert.ok(worker.includes('decideGesture('));
   });
 });

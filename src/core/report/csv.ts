@@ -1,6 +1,6 @@
 // Planilha com o mesmo conteúdo do PDF (RF-70). Separador ";" (o Excel em português espera isso), fim de linha CRLF e BOM
 // UTF-8 para o acento abrir certo. Texto de terceiros nunca vira fórmula (RF-74, CA-14).
-import { FOOTER_PHRASE, MISSING_NOTICE, PERSONAL_DATA_NOTICE, REVIEW_NOTICE } from './model.ts';
+import { FOOTER_PHRASE, MISSING_NOTICE, PERSONAL_DATA_NOTICE, PREVIEW_NOTICE, REVIEW_NOTICE } from './model.ts';
 import type { ReportModel } from './model.ts';
 
 export const CSV_BOM = String.fromCharCode(0xfeff);
@@ -26,6 +26,7 @@ function introRows(model: ReportModel): string[][] {
   rows.push([model.scopeText]);
   if (model.rows.length > 0) rows.push([MISSING_NOTICE]);
   if (model.hasReview) rows.push([REVIEW_NOTICE]);
+  if (model.hasPreview) rows.push([PREVIEW_NOTICE]);
   rows.push([FOOTER_PHRASE], [PERSONAL_DATA_NOTICE], []);
   return rows;
 }

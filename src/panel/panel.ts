@@ -1,3 +1,4 @@
+import { parseResults } from '../core/results/parse.ts';
 import { needsAcceptance } from '../core/conversation/build.ts';
 import { MEMORY_KEY, parseStoredText } from './text-memory.ts';
 import type { TextMemory } from '../core/conversation/analyze-store.ts';
@@ -118,16 +119,19 @@ function show(value: unknown): void {
     data.hidden = true;
     return;
   }
+  const results = 'results' in value ? value.results : null;
+  const read = 'read' in value ? value.read : null;
   let origin = 'endereço inválido';
   try {
-    origin = new URL(value.read.url).origin;
+    origin = new URL(results?.url ?? read?.url ?? '').origin;
   } catch {
     // mantém o texto padrão
   }
-  byId('proof-status').textContent = 'Página lida.';
+  // Na página de resultados, só a contagem: serve para conferir o leitor sem mostrar dados de ninguém.
+  byId('proof-status').textContent = results === null ? 'Página lida.' : 'Página de resultados lida. Pessoas achadas:';
   byId('proof-origin').textContent = origin;
-  byId('proof-count').textContent = String(value.read.text.length);
-  byId('proof-preview').textContent = value.read.text.slice(0, PREVIEW_CHARS);
+  byId('proof-count').textContent = String(results === null ? (read?.text.length ?? 0) : parseResults(results.items).length);
+  byId('proof-preview').textContent = read?.text.slice(0, PREVIEW_CHARS) ?? '';
   data.hidden = false;
 }
 

@@ -1,4 +1,5 @@
 // A parte de Ajustes da leitura por clique: estado, botão de ligar com o aviso, botão de desligar.
+import { clickReadActive } from '../background/gesture.ts';
 import { h } from './ui/h.ts';
 import { Button, Notice } from './ui/components.ts';
 import type { Controller } from './app.ts';
@@ -7,7 +8,7 @@ import { CLICK_READ } from './click-strings.ts';
 export function ClickReadSection(ctl: Controller): HTMLElement {
   const { settings } = ctl.snapshot();
   const control = ctl.clickRead;
-  const on = settings.clickReadEnabled && settings.acceptances.clickRead !== undefined;
+  const on = clickReadActive(settings);
   const since = settings.acceptances.clickRead;
   const status = on && since !== undefined ? CLICK_READ.statusOn(new Date(since.at).toLocaleDateString('pt-BR')) : CLICK_READ.statusOff;
   return h(

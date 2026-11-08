@@ -1,6 +1,6 @@
 import { describe, test } from 'node:test';
 import assert from 'node:assert/strict';
-import { clickReadActive, decideGesture } from '../../../src/background/gesture.ts';
+import { CLICK_READ_VERSION, clickReadActive, decideGesture } from '../../../src/background/gesture.ts';
 import { isProfileAddress, nameFromTitle } from '../../../src/core/page-read.ts';
 
 describe('decideGesture', () => {
@@ -41,12 +41,25 @@ describe('decideGesture', () => {
   });
 });
 
+describe('decideGesture na página de resultados (RF-38)', () => {
+  const RESULTS = 'https://www.linkedin.com/search/results/people/?keywords=teste';
+  test('ligada, lê como resultados; desligada, não lê; outra busca não é lida', () => {
+    assert.equal(decideGesture({ enabled: true, tabUrl: RESULTS }), 'read_results');
+    assert.equal(decideGesture({ enabled: false, tabUrl: RESULTS }), 'off');
+    assert.equal(decideGesture({ enabled: true, tabUrl: 'https://www.linkedin.com/search/results/all/?keywords=teste' }), 'not_profile');
+  });
+});
+
 describe('clickReadActive', () => {
-  const accepted = { version: 1, at: 1 };
+  const accepted = { version: CLICK_READ_VERSION, at: 1 };
   test('exige ligada e aviso aceito', () => {
     assert.equal(clickReadActive({ clickReadEnabled: true, acceptances: { clickRead: accepted } }), true);
     assert.equal(clickReadActive({ clickReadEnabled: true, acceptances: {} }), false);
     assert.equal(clickReadActive({ clickReadEnabled: false, acceptances: { clickRead: accepted } }), false);
+  });
+
+  test('aceite do aviso antigo, de antes da página de resultados, não vale', () => {
+    assert.equal(clickReadActive({ clickReadEnabled: true, acceptances: { clickRead: { version: CLICK_READ_VERSION - 1, at: 1 } } }), false);
   });
 });
 

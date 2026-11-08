@@ -47,7 +47,7 @@ export interface StoredRecord {
   readonly favorite: boolean;
   readonly notes: string;
   readonly informedAt: number | null;
-  readonly source: 'pasted' | 'clicked';
+  readonly source: 'pasted' | 'clicked' | 'results';
   readonly addedAt: number;
   readonly updatedAt: number;
   readonly expiresAt: number;

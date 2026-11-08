@@ -85,7 +85,7 @@ export async function seedWorkspace(h: Harness, profiles: readonly SeedProfile[]
     responsibleName: 'Marina Souza',
     responsibleContact: 'marina@exemplo.test',
     ...(options.clickRead === true ? { clickReadEnabled: true } : {}),
-    acceptances: { terms: { version: 1, at: base }, ...(options.fileExportAccepted === true ? { fileExport: { version: 1, at: base } } : {}), ...(options.clickRead === true ? { clickRead: { version: 1, at: base } } : {}) },
+    acceptances: { terms: { version: 1, at: base }, ...(options.fileExportAccepted === true ? { fileExport: { version: 1, at: base } } : {}), ...(options.clickRead === true ? { clickRead: { version: 2, at: base } } : {}) },
   });
   let step = 0;
   for (const person of profiles) {

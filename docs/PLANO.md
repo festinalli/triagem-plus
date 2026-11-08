@@ -31,6 +31,7 @@ Cada marco termina com todos os testes passando e um resumo em linguagem simples
 | F10a | Relatório em PDF e CSV | RF-70 a 72, 74, 75; CA-13, 14, 27 | F05 | média | 600 linhas |
 | F10b | Modelos de mensagem e privacidade | RF-80 a 82, RF-91, 94, RNF-05; CA-16 | F07 | média | 600 linhas |
 | F11 | Fechamento | RNF-03, 04, 07 a 11; CA-20 a 24, 28 no roteiro | todas | média | 600 linhas |
+| F12 | Leitura da página de resultados, depois do primeiro teste real (D-09, D-10, D-11) | RF-25, 26, RF-38, 39; CA-29, 30, 31 | F09, F10a | média | 900 linhas |
 
 **Ordem:** F01 primeiro. Depois F02, F04 e F06 em paralelo. Depois F03. Depois F05. Depois F07 e F10a em paralelo. Depois F08 e F10b em paralelo, com posse separada de arquivos. Depois F09. Por fim F11.
 
@@ -111,7 +112,7 @@ Gerador próprio de PDF em `src/core/report` (DP-21) e CSV protegido.
 
 ## 4. O que reaproveitar da Candidata+
 
-Lido pelo marco `onda-4`, com `git -C C:/Users/fabio/Documents/projetos/opentowork show onda-4:<caminho>`. Nada é editado lá.
+Lido pelo marco `onda-4` do repositório da Candidata+, com `git show onda-4:<caminho>`. Nada é editado lá.
 
 | Vem de lá | Linhas | Como |
 |---|---:|---|

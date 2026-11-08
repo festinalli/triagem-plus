@@ -2,6 +2,7 @@
   "name": "triagem",
   "version": "0.1.0",
   "private": true,
+  "license": "Apache-2.0",
   "description": "Extensão Chrome local para triagem de candidatos de tecnologia, sem rede e sem servidor.",
   "type": "module",
   "engines": {

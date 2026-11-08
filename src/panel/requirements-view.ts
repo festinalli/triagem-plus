@@ -172,8 +172,10 @@ function excludedBlock(terms: readonly string[], ctl: Controller): HTMLElement {
 export const RequirementsView: MessageView<'requirements'> = (message, ctl) => {
   const { job } = message;
   const reread = job.text.trim() !== '' && ctl.ui.suggestion === null;
+  // Com sugestões na tela, seguir para a busca as jogaria fora, sem aviso. O caminho é "Usar os marcados".
+  const pending = (ctl.ui.suggestion?.items.length ?? 0) > 0;
   return Message({
-    message,
+    message: pending ? { ...message, actions: message.actions.filter((action) => action.id !== 'open_search') } : message,
     ctl,
     title: REQUIREMENTS.title,
     children: [

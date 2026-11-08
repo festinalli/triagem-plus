@@ -34,8 +34,8 @@ export interface Job {
   readonly updatedAt: number;
 }
 
-/** A lista fechada de seções que contam (RF-41). */
-export type ProfileSection = 'about' | 'experience' | 'skills' | 'certifications' | 'languages' | 'projects';
+/** A lista fechada de seções que contam (RF-41). `listing` é o que a página de resultados mostra: título e trecho (RF-38). */
+export type ProfileSection = 'about' | 'experience' | 'skills' | 'certifications' | 'languages' | 'projects' | 'listing';
 
 export interface CardTerm {
   /** Nome canônico da lista de termos ou, em termo livre, o texto normalizado. */
@@ -64,7 +64,7 @@ export interface ProfileCard {
 export type RequirementStatus = 'met' | 'partial' | 'not_found' | 'needs_reanalysis';
 
 /** Motivo mostrado junto do resultado, quando há um (Apêndice A). */
-export type ResultNote = 'mentioned_only' | 'time_not_measurable' | 'check_profile';
+export type ResultNote = 'mentioned_only' | 'time_not_measurable' | 'check_profile' | 'not_in_listing';
 
 export interface Evidence {
   readonly section: ProfileSection;
@@ -110,7 +110,7 @@ export interface Candidate {
   readonly favorite: boolean;
   readonly notes: string;
   readonly informedAt: number | null;
-  readonly source: 'pasted' | 'clicked';
+  readonly source: 'pasted' | 'clicked' | 'results';
   readonly addedAt: number;
   readonly updatedAt: number;
 }

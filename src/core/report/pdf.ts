@@ -1,11 +1,11 @@
 // Gerador de PDF próprio (DP-21, RNF-12): A4 em pé, só texto, linhas, retângulos e links, com Helvetica e Helvetica-Bold.
 // Sem compressão, sem JavaScript, sem /OpenAction, sem imagem e sem recurso externo. Todo texto passa por toWinAnsi e sai
 // com ( ) \ e bytes fora do ASCII em escape octal, então texto de terceiros nunca vira operador do arquivo (RNF-04).
-import { FOOTER_PHRASE, MISSING_NOTICE, PERSONAL_DATA_NOTICE, REVIEW_NOTICE } from './model.ts';
+import { FOOTER_PHRASE, MISSING_NOTICE, PERSONAL_DATA_NOTICE, PREVIEW_NOTICE, REVIEW_NOTICE } from './model.ts';
 import type { ReportModel, ReportRow } from './model.ts';
 import { textWidth, toWinAnsi } from './winansi.ts';
 
-export { FOOTER_PHRASE, MISSING_NOTICE, PERSONAL_DATA_NOTICE, REVIEW_NOTICE };
+export { FOOTER_PHRASE, MISSING_NOTICE, PERSONAL_DATA_NOTICE, PREVIEW_NOTICE, REVIEW_NOTICE };
 
 const PAGE_W = 595.28;
 const PAGE_H = 841.89;
@@ -191,7 +191,7 @@ function rowBlock(w: Writer, row: ReportRow, includeNotes: boolean): Line[] {
   lines.push(...field(w, 'Experiência', [w.clean(row.experience)]));
   lines.push(...field(w, 'Bateu', w.wrap(w.clean(row.met.length === 0 ? 'Nenhum' : row.met.join(', ')), false, BODY, valueW)));
   lines.push(...field(w, 'Faltou', w.wrap(w.clean(row.missing.length === 0 ? 'Nenhum' : row.missing.join(', ')), false, BODY, valueW)));
-  if (row.review.length > 0) lines.push(...field(w, 'A rever', w.wrap(w.clean(row.review.join(', ')), false, BODY, valueW), { color: MUTED }));
+  if (row.review.length > 0) lines.push(...field(w, row.reviewLabel, w.wrap(w.clean(row.review.join(', ')), false, BODY, valueW), { color: MUTED }));
   lines.push(...field(w, 'Etapa', [w.clean(row.stageLabel)], { rule: !includeNotes }));
   if (includeNotes) {
     const notes = row.notes ?? '';
@@ -242,6 +242,7 @@ function closingLines(w: Writer, model: ReportModel): Line[] {
   add(`Gerado em ${model.dateText}.`, true);
   if (model.rows.length > 0) add(MISSING_NOTICE, false);
   if (model.hasReview) add(REVIEW_NOTICE, false);
+  if (model.hasPreview) add(PREVIEW_NOTICE, false);
   add(PERSONAL_DATA_NOTICE, false);
   lines.push(textLine([], 4, 0, { fill: BAND_FILL }));
   return lines;

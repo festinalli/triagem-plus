@@ -1,8 +1,8 @@
 // A parte do controlador que cuida da triagem: colar e analisar, tirar da lista, detalhe, filtros e relatório.
 // Fala com o armazenamento pelas funções de src/core e guarda só o que vive na memória do painel (RF-69).
 // Nada daqui escreve nome, link ou texto de candidato em registro ou em mensagem de erro (RNF-11).
-import { analyzeAndStore, removeCandidate } from '../core/conversation/analyze-store.ts';
-import type { AnalyzeFailure, AnalyzeInput, AnalyzeOutcome, TextMemory } from '../core/conversation/analyze-store.ts';
+import { analyzeAndStore, analyzeListing, removeCandidate } from '../core/conversation/analyze-store.ts';
+import type { AnalyzeFailure, AnalyzeInput, AnalyzeOutcome, ListingOutcome, TextMemory } from '../core/conversation/analyze-store.ts';
 import { HOME } from '../core/conversation/build.ts';
 import type { Action } from '../core/conversation/build.ts';
 import { applyFilters, describeFilters, filtersActive, NO_FILTERS } from '../core/conversation/filters.ts';
@@ -13,10 +13,12 @@ import { checkTerm, MAX_TERM_CHARS } from '../core/guard/index.ts';
 import { STAGES } from '../core/model.ts';
 import type { Band, Stage } from '../core/model.ts';
 import { renew } from '../core/store/retention.ts';
+import type { RawResult } from '../core/results/parse.ts';
 import type { Store } from '../core/store/store.ts';
 import { buildReportFiles } from './report-files.ts';
 import type { ReportFormat } from './report-files.ts';
 import type { Snapshot, UiState } from './app.ts';
+import { listingSummary } from './click-strings.ts';
 import { DETAIL, LIST, PASTE_ERRORS, REPORT } from './strings.ts';
 import { startDownload } from './ui/download-link.ts';
 
@@ -43,6 +45,8 @@ export interface TriageContext {
 export interface TriageController {
   /** Analisa o texto e põe a pessoa na lista da vaga ativa, sem outro clique. Serve ao colar e ao clique (source 'clicked'). */
   analyzeAndStore(input: AnalyzeInput): Promise<AnalyzeOutcome>;
+  /** Analisa as pessoas de uma página de resultados (RF-39). */
+  analyzeResults(items: readonly RawResult[]): Promise<ListingOutcome>;
   submitPaste(values: Record<string, string>): Promise<void>;
   /** Trata os botões da triagem. Falso quando o botão não é daqui. */
   run(action: Action): boolean;
@@ -95,6 +99,21 @@ export function createTriage(ctx: TriageContext): TriageController {
     ui.analysis = { candidateId: outcome.candidateId, updated: outcome.updated, addedNothing: outcome.addedNothing, notProfileLink: outcome.notProfileLink };
     ctx.go(HOME);
     return outcome;
+  }
+
+  function analyzeResults(items: readonly RawResult[]): Promise<ListingOutcome> {
+    const next = queue.then(async () => {
+      const outcome = await analyzeListing({ store, memory: ctx.memory, now: ctx.now, newId: ctx.newId }, items);
+      if (!outcome.ok) return outcome;
+      await ctx.load();
+      ui.analysis = null;
+      // Quem lê páginas de resultados quer o relatório de todos os lidos, não só dos 10 primeiros.
+      ui.report = { ...ui.report, scope: 'filtered' };
+      ctx.go(HOME, listingSummary(outcome));
+      return outcome;
+    });
+    queue = next.catch(() => undefined);
+    return next;
   }
 
   async function submitPaste(values: Record<string, string>): Promise<void> {
@@ -280,5 +299,5 @@ export function createTriage(ctx: TriageContext): TriageController {
     ctx.redraw();
   }
 
-  return { analyzeAndStore: analyze, submitPaste, run, saveDetails, setFilters, clearFilters, setReport, download };
+  return { analyzeAndStore: analyze, analyzeResults, submitPaste, run, saveDetails, setFilters, clearFilters, setReport, download };
 }

@@ -3,10 +3,13 @@ import { normalize } from '../text/normalize.ts';
 import type { ProfileSection } from '../model.ts';
 import { MAX_SHORT_LINE } from './lines.ts';
 
-export type SectionRole = ProfileSection | 'ignored';
+/** A lista de resultados não é uma seção do perfil: nenhum título leva a ela. */
+type TitledSection = Exclude<ProfileSection, 'listing'>;
+
+export type SectionRole = TitledSection | 'ignored';
 
 /** A lista fechada do que conta. Só estas seções chegam a algum campo do resultado. */
-const COUNTED: Readonly<Record<ProfileSection, readonly string[]>> = {
+const COUNTED: Readonly<Record<TitledSection, readonly string[]>> = {
   about: ['Sobre', 'About', 'Resumo', 'Summary', 'Resumo profissional', 'Professional summary', 'Perfil profissional', 'Professional profile'],
   experience: [
     'Experiência', 'Experience', 'Experiências', 'Experiences', 'Experiência profissional', 'Experiências profissionais',
@@ -105,7 +108,7 @@ function titleKey(line: string): string {
 
 const TITLES: ReadonlyMap<string, SectionRole> = new Map<string, SectionRole>([
   ...Object.entries(COUNTED).flatMap(([section, titles]) =>
-    titles.map((title): [string, SectionRole] => [titleKey(title), section as ProfileSection])),
+    titles.map((title): [string, SectionRole] => [titleKey(title), section as TitledSection])),
   ...IGNORED.map((title): [string, SectionRole] => [titleKey(title), 'ignored']),
 ]);
 

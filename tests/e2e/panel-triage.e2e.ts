@@ -473,7 +473,8 @@ describe('F08: Ver todos, filtros e detalhe (RF-60, RF-62 a RF-65, RF-90)', { ti
     await detail.getByLabel('Notas', { exact: true }).fill('Ligar na terça. Boa conversa sobre Kafka.');
     await detail.getByRole('button', { name: 'Salvar', exact: true }).click();
     await page.getByText('Alterações salvas.').waitFor();
-    assert.equal(await detail.getByText('Cuidado com o que você anota').count(), 0);
+    // "Alterações salvas." já estava na tela desde o primeiro Salvar, então é preciso esperar o alerta sair.
+    await detail.getByText('Cuidado com o que você anota').waitFor({ state: 'detached' });
     // A etapa aparece no Top 10.
     await page.getByRole('button', { name: 'Voltar ao início' }).click();
     await page.getByText(/Entrevista/).first().waitFor();

@@ -44,8 +44,8 @@ Marque cada passo: **Passou** ou **Falhou**. Se falhar, escreva em "Anotação" 
 ### 1. Criar a vaga e a busca (CA-23)
 
 - **O que fazer:** no painel, clique em **Nova vaga**. Escreva um título, cole o texto da vaga e clique em **Salvar e ver requisitos**. Confira as sugestões, ajuste e use **Usar os marcados**. Depois clique em **Montar a busca** e em **Copiar**.
-- **O que deve acontecer:** a vaga aparece como **Vaga ativa**. A busca aparece com AND, OR e NOT e a mensagem "Busca copiada." Cole a busca no campo de pesquisa do LinkedIn, sem enviar nada de volta ao painel.
-- **O LinkedIn aceita o texto da busca?** Ele deve rodar a busca sem dar erro de formato. Se reclamar do tamanho, teste a versão **Curta** e anote.
+- **O que deve acontecer:** a vaga aparece como **Vaga ativa**. A busca aparece com AND (e NOT, se houver termos excluídos) e a mensagem "Busca copiada." Cole a busca no campo de pesquisa do LinkedIn, sem enviar nada de volta ao painel.
+- **O LinkedIn aceita o texto da busca?** Ele deve rodar a busca sem dar erro de formato. Se reclamar do tamanho ou voltar sem resultados, teste a versão **Curta** e anote.
 - Passou [ ]  Falhou [ ]  Anotação: ______________________
 
 ### 2. Abrir no LinkedIn (CA-23)
@@ -118,6 +118,30 @@ Marque cada passo: **Passou** ou **Falhou**. Se falhar, escreva em "Anotação" 
 - **O que fazer:** no painel, abra **Os 10 melhores** e clique em **Gerar PDF**. Leia o aviso, escolha o que entra no arquivo e clique em **Entendi o aviso e gerar PDF** (na primeira vez). Abra o arquivo baixado num leitor de PDF de verdade (o do Chrome e outro, se tiver). Clique no link do seu perfil. Depois imprima, ou veja a visualização de impressão.
 - **O que deve acontecer:** o arquivo vai para a pasta de downloads, sem passar pela tela de imprimir. Tem título da vaga, data, requisitos, posição, nome, nota, faixa e o que bateu e o que faltou. Os acentos saem certos. O link abre o perfil. Na impressão a página fica legível e nada é cortado. A frase "A nota é apoio, e a decisão é sua." aparece.
 - Passou [ ]  Falhou [ ]  Anotação: ______________________
+
+### 12a. Ler a página de resultados (CA-30)
+
+Este passo lê pessoas reais: use uma busca sua, e os dados dessas pessoas passam a ficar sob a sua responsabilidade. Para testar sem guardar ninguém, use primeiro o pacote de prova: o item do menu é **Provar a leitura desta página**, e o painel só mostra quantas pessoas achou.
+
+- **O que fazer:** monte a busca e clique em **Abrir no LinkedIn**. Se a tela da busca mostrar **Ligar a leitura por clique**, clique e aceite o aviso (se você ligou antes, ele é pedido de novo). No LinkedIn, espere carregar e role até o fim. Volte ao painel e clique em **Ler esta página**. Na primeira vez, o Chrome pede permissão: escolha Permitir. Depois passe para a página 2 e clique de novo. O botão direito (**Analisar esta página com a Triagem+**) e o Alt+Shift+T também servem.
+- **O que deve acontecer:**
+  - o painel diz "Li N pessoas nesta página", e N é o número de pessoas na tela;
+  - a lista mostra nome e link certos, com o selo **Pré-nota**, e o link abre o perfil daquela pessoa;
+  - nenhum nome de conexão em comum entrou como se fosse candidato;
+  - na página 2, quem já estava não aparece duas vezes;
+  - abrindo o perfil de alguém da lista e repetindo o gesto, a mesma pessoa passa a ter nota completa, sem duplicar.
+- Passou [ ]  Falhou [ ]  Anotação (só números e o que apareceu, sem nomes): ______________________
+
+### 12b. Abrir e ler o próximo perfil (CA-31)
+
+- **O que fazer:** depois do passo 12a, clique em **Abrir e ler o próximo perfil** no painel. Espere: a Triagem+ abre o perfil numa aba e lê sozinha quando a página termina de carregar. Clique de novo para o próximo. Faça isso com 3 pessoas.
+- **O que deve acontecer:**
+  - cada clique abre um perfil só, e o número de "faltam" diminui;
+  - a pessoa sai de **Pré-nota** e ganha nota completa, com o tempo de experiência;
+  - ninguém aparece duas vezes na lista;
+  - se o LinkedIn pedir login ou verificação, o painel diz que nada foi lido, e nada é tentado sozinho.
+- **Se a experiência não vier:** o LinkedIn pode carregar parte do perfil só quando você rola a página. Nesse caso, role o perfil até o fim e clique em **Ler esta página**. Anote se isso aconteceu.
+- Passou [ ]  Falhou [ ]  Anotação (só números e o que apareceu, sem nomes): ______________________
 
 ### 13. Apagar uma pessoa e apagar tudo (CA-16)
 

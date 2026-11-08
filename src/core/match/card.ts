@@ -18,7 +18,7 @@ import { unionMonths } from '../time/union.ts';
 import { monthIndex } from '../time/year-month.ts';
 import { hasPhrase, haystacksOf, lookupOf, phraseKey, searchTextOf, titleHaystacksOf, titlePhraseKey } from './lookup.ts';
 
-const SECTION_ORDER: readonly ProfileSection[] = ['about', 'experience', 'skills', 'certifications', 'languages', 'projects'];
+const SECTION_ORDER: readonly ProfileSection[] = ['about', 'experience', 'skills', 'certifications', 'languages', 'projects', 'listing'];
 const MAX_JOB_TITLES = 3;
 const MONTHS_PER_YEAR = 12;
 
@@ -124,6 +124,40 @@ function searchPlacesOf(parsed: ParsedProfile, experiences: readonly ParsedExper
     sections: paired(sections, haystacksOf(sectionTexts)),
     experiences: paired(experiences, haystacksOf(experiences.map((experience) => experience.text))),
     titles: paired(experiences, titleHaystacksOf(experiences.map((experience) => experience.title))),
+  };
+}
+
+/**
+ * A ficha de quem só foi visto na página de resultados (RF-39). Só entram termos da lista, e palavra de cargo só no título.
+ * Termo livre não é procurado: o título e o trecho são tão pessoais quanto Sobre (DP-25). Sem tempo de experiência, porque a
+ * lista não mostra períodos. `truncated` é verdadeiro porque a lista é sempre um recorte, e assim somar com uma leitura
+ * completa mantém o que ela disser (RF-35).
+ */
+export function buildListingCard(entry: { readonly headline: string; readonly details: string }, requirements: readonly Requirement[]): ProfileCard {
+  const found = new Map<string, Found>();
+  const memo: Memo = new Map();
+  for (const canonical of termsInList(entry.headline, memo)) markListed(found, canonical, 'listing');
+  for (const canonical of termsInExperience(entry.details, memo)) markListed(found, canonical, 'listing');
+
+  const searched = new Set<string>();
+  const headline = titleHaystacksOf([entry.headline])[0] ?? '';
+  for (const requirement of requirements) {
+    const lookup = lookupOf(requirement);
+    if (lookup.kind !== 'title' || lookup.key === '' || searched.has(lookup.key)) continue;
+    searched.add(lookup.key);
+    const text = searchTextOf(requirement);
+    const phrases = [...new Set([text, ...synonymsOf(text)].map(titlePhraseKey))];
+    if (phrases.some((phrase) => hasPhrase(headline, phrase))) mark(found, lookup.key, 'listing');
+  }
+
+  const title = workTitleOf(entry.headline);
+  return {
+    totalMonths: null,
+    currentTitle: title === '' ? null : title,
+    terms: [...found.keys()].sort(compareText).map((key): CardTerm => ({ key, sections: ['listing'], months: null, jobTitles: [] })),
+    searchedFreeTerms: [...searched].sort(compareText),
+    sectionsRead: ['listing'],
+    truncated: true,
   };
 }
 
